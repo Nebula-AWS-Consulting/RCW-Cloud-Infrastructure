@@ -30,10 +30,10 @@ jobs:
           cat changed_files.txt
 
       - name: Deploy Foundation Template
-        if: contains(steps.changes.outputs.files, 'infrastructure/arch-foundation.yaml')
+        if: contains(steps.changes.outputs.files, './infrastructure/arch-foundation.yaml')
         run: |
           aws cloudformation deploy \
-            --template-file infrastructure/arch-foundation.yaml \
+            --template-file ./infrastructure/arch-foundation.yaml \
             --stack-name RCW-Architecture-Foundation-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
@@ -42,10 +42,10 @@ jobs:
                 Environment=Dev
 
       - name: Deploy Paypal Processor Template
-        if: contains(steps.changes.outputs.files, 'infrastructure/workloads/rcw-paypal-processor.yaml')
+        if: contains(steps.changes.outputs.files, './infrastructure/workloads/rcw-paypal-processor.yaml')
         run: |
           sam deploy \
-            --template-file ".aws-sam/build/template.yaml" \
+            --template-file "./.aws-sam/build/template.yaml" \
             --stack-name RCW-Architecture-Paypal-Processor-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
@@ -53,10 +53,10 @@ jobs:
             --parameter-overrides Environment=Dev
 
       - name: Deploy Web App Template
-        if: contains(steps.changes.outputs.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml')
+        if: contains(steps.changes.outputs.files, './infrastructure/workloads/rcw-client-public-app-layer.yaml')
         run: |
           sam deploy \
-            --template-file ".aws-sam/build/template.yaml" \
+            --template-file "./.aws-sam/build/template.yaml" \
             --stack-name RCW-Architecture-Paypal-Processor-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
@@ -64,10 +64,10 @@ jobs:
             --parameter-overrides Environment=Dev
 
       - name: Deploy DB Template
-        if: contains(steps.changes.outputs.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml')
+        if: contains(steps.changes.outputs.files, './infrastructure/workloads/rcw-client-public-db-layer.yaml')
         run: |
           sam deploy \
-            --template-file ".aws-sam/build/template.yaml" \
+            --template-file "./.aws-sam/build/template.yaml" \
             --stack-name RCW-Architecture-Paypal-Processor-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
