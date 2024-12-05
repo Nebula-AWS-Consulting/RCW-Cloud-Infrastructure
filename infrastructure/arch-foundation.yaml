@@ -244,4 +244,3 @@ Outputs:
   WebACLArn:
     Description: WAF Web ACL ARN
     Value: !GetAtt WebACL.Arn
-    
