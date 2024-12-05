@@ -30,10 +30,10 @@ jobs:
           cat changed_files.txt
 
       - name: Deploy Foundation Template
-        if: contains(steps.changes.outputs.files, './infrastructure/arch-foundation.yaml')
+        if: contains(steps.changes.outputs.files, 'infrastructure/arch-foundation.yaml')
         run: |
           aws cloudformation deploy \
-            --template-file ./infrastructure/arch-foundation.yaml \
+            --template-file infrastructure/arch-foundation.yaml \
             --stack-name RCW-Architecture-Foundation-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
