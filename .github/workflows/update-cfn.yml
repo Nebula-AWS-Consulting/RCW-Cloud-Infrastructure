@@ -28,10 +28,10 @@ jobs:
           echo "Changed files:"
           git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
           cat changed_files.txt
-          echo "::set-output name=files::$(cat changed_files.txt)"
+          echo "files=$(cat changed_files.txt)" >> $GITHUB_ENV
 
       - name: Deploy Foundation Template
-        if: contains(steps.changes.outputs.files, 'infrastructure/arch-foundation.yaml')
+        if: contains(env.files, 'infrastructure/arch-foundation.yaml')
         run: |
           aws cloudformation deploy \
             --template-file infrastructure/arch-foundation.yaml \
