@@ -216,21 +216,6 @@ Resources:
           Value: Security
         - Key: Name
           Value: AdminUser
-  AdminUser3:
-    Type: AWS::IAM::User
-    Properties:
-      UserName: AdminUser3
-      Groups:
-        - !Ref AdminGroup
-      Tags:
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Security
-        - Key: Name
-          Value: AdminUser
 
   ### IAM Groups and Policies ###
 
