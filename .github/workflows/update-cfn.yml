@@ -1,0 +1,73 @@
+name: Dynamic CloudFormation Update
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  detect-changes-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Detect changed files
+        id: changes
+        run: |
+          echo "Changed files:"
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+          cat changed_files.txt
+
+      - name: Deploy Foundation Template
+        if: contains(steps.changes.outputs.files, 'infrastructure/arch-foundation.yaml')
+        run: |
+          aws cloudformation deploy \
+            --template-file infrastructure/arch-foundation.yaml \
+            --stack-name RCW-Architecture-Foundation-Dev \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-execute-changeset \
+            --region us-west-1 \
+            --parameter-overrides \
+                Environment=Dev
+
+      - name: Deploy Paypal Processor Template
+        if: contains(steps.changes.outputs.files, 'infrastructure/workloads/rcw-paypal-processor.yaml')
+        run: |
+          sam deploy \
+            --template-file ".aws-sam/build/template.yaml" \
+            --stack-name RCW-Architecture-Paypal-Processor-Dev \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-execute-changeset \
+            --region us-west-1 \
+            --parameter-overrides Environment=Dev
+
+      - name: Deploy Web App Template
+        if: contains(steps.changes.outputs.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml')
+        run: |
+          sam deploy \
+            --template-file ".aws-sam/build/template.yaml" \
+            --stack-name RCW-Architecture-Paypal-Processor-Dev \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-execute-changeset \
+            --region us-west-1 \
+            --parameter-overrides Environment=Dev
+
+      - name: Deploy DB Template
+        if: contains(steps.changes.outputs.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml')
+        run: |
+          sam deploy \
+            --template-file ".aws-sam/build/template.yaml" \
+            --stack-name RCW-Architecture-Paypal-Processor-Dev \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-execute-changeset \
+            --region us-west-1 \
+            --parameter-overrides Environment=Dev
