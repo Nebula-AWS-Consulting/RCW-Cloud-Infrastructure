@@ -35,7 +35,7 @@ jobs:
           echo "files=$(cat changed_files.txt)" >> $GITHUB_ENV
 
       - name: Debug changed files
-        run: echo "Files changed: ${{ env.files }}"
+        run: echo "${{ env.files }}"
 
       - name: Deploy Foundation Template
         if: contains(env.files, 'infrastructure/arch-foundation.yaml')
