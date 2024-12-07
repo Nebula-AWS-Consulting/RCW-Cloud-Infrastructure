@@ -399,9 +399,6 @@ Resources:
       ServiceRole: !GetAtt CodePipelineExecutionRole.Arn
       BuildSpec: src/server/buildspec.yml
 
-
-
-
 Outputs:
   LogBucketName:
     Value: !Ref LogBucket
