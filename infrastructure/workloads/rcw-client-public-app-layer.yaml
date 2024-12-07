@@ -397,6 +397,8 @@ Resources:
         - Name: S3_BUCKET
           Value: rcw-code-bucket
       ServiceRole: !GetAtt CodePipelineExecutionRole.Arn
+      BuildSpec: src/server/buildspec.yml
+
 
 
 
