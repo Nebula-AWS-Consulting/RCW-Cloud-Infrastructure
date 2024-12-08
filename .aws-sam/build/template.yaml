@@ -69,6 +69,16 @@ Resources:
       - Key: Environment
         Value:
           Ref: Environment
+  ClientPublicBackendLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: ClientPublicBackendLayer
+      Description: Layer for Lambda dependencies
+      Content:
+        S3Bucket: rcw-code-bucket
+        S3Key: client-public-backend/dependencies.zip
+      CompatibleRuntimes:
+      - python3.8
   ClientPublicBackendFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -77,7 +87,9 @@ Resources:
         Fn::GetAtt:
         - LambdaExecutionRole
         - Arn
-      CodeUri: s3://rcw-code-bucket/client-public-backend/client-public-backend.zip
+      CodeUri: s3://rcw-code-bucket/client-public-backend/function.zip
+      Layers:
+      - Ref: ClientPublicBackendLayer
       Events:
         SignupPost:
           Type: Api
