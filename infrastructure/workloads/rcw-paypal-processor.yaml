@@ -93,8 +93,18 @@ Resources:
         Variables:
           SPREADSHEET_ID: 1Jpicnmuuuy7aS__mGb-3sLgED9vxvELrvffrDtOHWjo
           SERVICE_ACCOUNT_PARAMETER_NAME: rcw-paypal-processor-gcp-service-account
+      Events:
+        PayPalWebhook:
+          Type: Api
+          Properties:
+            Path: /paypal-webhook
+            Method: POST
 
 Outputs:
   PayPalProcessorLambdaFunctionArn:
     Value: !GetAtt PayPalProcessorFunction.Arn
     Description: "Lambda function ARN for PayPal Processor"
+
+  ApiEndpoint:
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/paypal-webhook"
+    Description: "API Gateway endpoint for PayPal Webhook"
