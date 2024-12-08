@@ -107,4 +107,3 @@ Outputs:
 
   ApiEndpoint:
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/paypal-webhook"
-    Description: "API Gateway endpoint for PayPal Webhook"
