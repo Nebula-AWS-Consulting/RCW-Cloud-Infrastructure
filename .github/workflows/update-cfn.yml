@@ -30,10 +30,10 @@ jobs:
           echo "Changed files:"
           git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
           cat changed_files.txt
-          echo "files=$(cat changed_files.txt)" >> $GITHUB_ENV
+          echo "files=$(cat changed_files.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Deploy Foundation Template
-        if: contains(env.files, 'infrastructure/arch-foundation.yaml')
+        if: ${{ contains(env.files, 'infrastructure/arch-foundation.yaml') }}
         run: |
           aws cloudformation deploy \
             --template-file infrastructure/arch-foundation.yaml \
@@ -45,7 +45,7 @@ jobs:
                 Environment=Dev
 
       - name: Deploy Paypal Processor Template
-        if: contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml')
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml') }}
         run: |
           sam deploy \
             --template-file ".aws-sam/build/template.yaml" \
@@ -56,7 +56,7 @@ jobs:
             --parameter-overrides Environment=Dev
 
       - name: Deploy Web App Template
-        if: contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml')
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml') }}
         run: |
           sam deploy \
             --template-file ".aws-sam/build/template.yaml" \
@@ -67,7 +67,7 @@ jobs:
             --parameter-overrides Environment=Dev
 
       - name: Deploy DB Template
-        if: contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml')
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
         run: |
           sam deploy \
             --template-file ".aws-sam/build/template.yaml" \
