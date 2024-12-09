@@ -199,6 +199,19 @@ Resources:
               VendorName: AWS
               Name: AWSManagedRulesCommonRuleSet
 
+  CodeCommitRepository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: RCW-Infrastructure-Campaign
+      RepositoryDescription: Repository for the RCW-Website
+      Tags:
+        - Key: Environment
+          Value: Development
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Code
+
   ### IAM Users ###
 
   AdminUser:
