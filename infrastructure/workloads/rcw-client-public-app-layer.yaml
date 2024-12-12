@@ -223,6 +223,30 @@ Resources:
             Path: /user
             Method: OPTIONS
             RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateOrder:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateOrderOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateSubscription:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateSubscriptionOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
       Tags:
         Environment: !Ref Environment
 
