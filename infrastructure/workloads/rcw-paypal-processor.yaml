@@ -55,7 +55,10 @@ Resources:
                   - "dynamodb:DeleteItem"
                   - "dynamodb:Scan"
                   - "dynamodb:Query"
-                Resource: "arn:aws:dynamodb:*:*:table/AdminTable"
+                Resource:
+                  - "arn:aws:dynamodb:*:*:table/AdminTable"
+                  - "arn:aws:dynamodb:*:*:table/SubscriptionsAndPayments"
+
 
           # SSM Parameter Store Access Policy
         - PolicyName: SSMParameterAccessPolicy

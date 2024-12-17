@@ -6,9 +6,6 @@ Parameters:
     Type: String
     Default: Dev
     Description: Environment name for the VPC
-  OAuthToken:
-    Type: String
-    Description: OAuth token for GitHub integration
 Globals:
   Function:
     Runtime: python3.8
@@ -18,20 +15,6 @@ Globals:
       Environment:
         Ref: Environment
 Resources:
-  AmplifyApp:
-    Type: AWS::Amplify::App
-    Properties:
-      Name: RCW-Infrastructure-Campaign
-      Repository:
-        Fn::Sub: https://github.com/Nebula-AWS-Consulting/RCW-Infrastructure-Campaign
-      OAuthToken:
-        Ref: OAuthToken
-      BuildSpec: "version: 1\nfrontend:\n    phases:\n        preBuild:\n        \
-        \    commands:\n                - cd src/client-frontend\n               \
-        \ - npm install\n        build:\n            commands:\n                -\
-        \ npm run build\n    artifacts:\n        baseDirectory: src/client-frontend/dist\n\
-        \        files:\n            - '**/*'\n    cache:\n        paths:\n      \
-        \      - src/client-frontend/node_modules/**/* \n"
   LogBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -249,6 +232,34 @@ Resources:
           Type: Api
           Properties:
             Path: /user
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateOrder:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateOrderOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateSubscription:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateSubscriptionOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
             Method: OPTIONS
             RestApiId:
               Ref: ClientPublicBackendApi
