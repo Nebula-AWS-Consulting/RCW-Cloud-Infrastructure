@@ -91,7 +91,7 @@ jobs:
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
             --region us-west-1 \
-            --parameter-overrides 
+            --parameter-overrides \
               Environment=Dev \
               EmailIdentityRecipientParameter=emmanuelurias60@icloud.com \
               EmailIdentitySenderParameter=emmanuelurias60@nebulaawsconsulting.com \
