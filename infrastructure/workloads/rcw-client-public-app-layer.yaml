@@ -547,3 +547,11 @@ Outputs:
   ClientPublicBackendApiInvokeURL:
     Value: !Sub "https://${ClientPublicBackendApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
     Description: "Invoke URL for the Client Public Backend API"
+
+  PaypalClientIdParameterValue:
+    Value: !Ref PaypalClientIdParameter
+    Description: "Paypal Client ID Parameter"
+
+  PaypalSecretParameterValue:
+    Value: !Ref PaypalSecretParameter
+    Description: "Paypal Secret Parameter"
