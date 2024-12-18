@@ -96,7 +96,8 @@ jobs:
             EmailIdentityRecipientParameter=emmanuelurias60@icloud.com \
             EmailIdentitySenderParameter=emmanuelurias60@nebulaawsconsulting.com \
             PaypalSecret=${{ secrets.PAYPAL_CLIENT_ID }} \
-            PayPalClientId=${{ secrets.PAYPAL_SECRET }}
+            PayPalClientId=${{ secrets.PAYPAL_SECRET }} \
+            ConfigurationSet=my-first-configuration-set
 
       - name: Clean DB Build Directory
         if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
