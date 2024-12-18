@@ -24,6 +24,11 @@ Parameters:
     Type: String
     Description: Paypal client id
 
+  ConfigurationSet:
+    Type: String
+    Default: my-first-configuration-set
+    Description: Configuration set name for SES
+
 Globals:
   Function:
     Runtime: python3.8
@@ -91,7 +96,7 @@ Resources:
                   - "ses:SendRawEmail"
                 Resource:
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
-                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/my-first-configuration-set"
+                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${ConfigurationSet}"
       Tags:
         Infrastructure: RCW
         Component: Security

@@ -24,6 +24,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+source .env
+
 # Deploy the stack using the built template
 echo "Deploying the SAM application..."
 sam deploy \
@@ -32,7 +34,12 @@ sam deploy \
     --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
     --no-execute-changeset \
     --region us-west-1 \
-    --parameter-overrides Environment=Dev
+    --parameter-overrides \
+        Environment=Dev \
+        EmailIdentityRecipientParameter=emmanuelurias60@icloud.com \
+        EmailIdentitySenderParameter=emmanuelurias60@nebulaawsconsulting.com \
+        PaypalSecret=$PAYPAL_CLIENT_ID \
+        PayPalClientId=$PAYPAL_SECRET
 
 if [ $? -ne 0 ]; then
     echo "SAM deploy failed. Exiting..."
