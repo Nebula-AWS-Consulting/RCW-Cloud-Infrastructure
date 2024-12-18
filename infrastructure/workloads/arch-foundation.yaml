@@ -262,6 +262,31 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
+  ### Configuration Set ###
+  SESConfigurationSet:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: RCW-EmailConfigurationSet
+
+  ### Event Destination for Configuration Set ###
+  SESConfigurationSetEventDestination:
+    Type: AWS::SES::ConfigurationSetEventDestination
+    Properties:
+      ConfigurationSetName: !Ref SESConfigurationSet
+      EventDestination:
+        Name: RCW-EventDestination
+        Enabled: true
+        MatchingEventTypes:
+          - SEND
+          - DELIVERY
+          - BOUNCE
+          - COMPLAINT
+        CloudWatchDestination:
+          DimensionConfigurations:
+            - DimensionName: EmailType
+              DimensionValueSource: MESSAGE_TAG
+              DefaultDimensionValue: Default
+
   ### Output Values ###
 
 Outputs:
@@ -280,3 +305,7 @@ Outputs:
   WebACLArn:
     Description: WAF Web ACL ARN
     Value: !GetAtt WebACL.Arn
+
+  SESConfigurationSet:
+    Description: SES Configuration Set Name
+    Value: !Ref SESConfigurationSet
