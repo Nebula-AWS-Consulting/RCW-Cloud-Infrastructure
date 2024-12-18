@@ -38,10 +38,10 @@ jobs:
         run: echo "${{ env.files }}"
 
       - name: Deploy Foundation Template
-        if: ${{ contains(env.files, 'infrastructure/arch-foundation.yaml') }}
+        if: ${{ contains(env.files, 'infrastructure/workloads/arch-foundation.yaml') }}
         run: |
           aws cloudformation deploy \
-            --template-file infrastructure/arch-foundation.yaml \
+            --template-file infrastructure/workloads/arch-foundation.yaml \
             --stack-name RCW-Architecture-Foundation-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
@@ -49,33 +49,66 @@ jobs:
             --parameter-overrides \
                 Environment=Dev
 
+      - name: Clean Paypal Processor Build Directory
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml') }}
+        run: rm -rf .aws-sam/paypal-processor
+
+      - name: Build Paypal Processor
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml') }}
+        run: |
+          sam build \
+            --template-file infrastructure/workloads/rcw-paypal-processor.yaml \
+            --build-dir .aws-sam/paypal-processor
+
       - name: Deploy Paypal Processor Template
         if: ${{ contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml') }}
         run: |
           sam deploy \
-            --template-file ".aws-sam/build/template.yaml" \
+            --template-file ".aws-sam/paypal-processor/template.yaml" \
             --stack-name RCW-Architecture-Paypal-Processor-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
             --region us-west-1 \
             --parameter-overrides Environment=Dev
 
+      - name: Clean Web App Build Directory
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml') }}
+        run: rm -rf .aws-sam/web-app
+
+      - name: Build Web App
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml') }}
+        run: |
+          sam build \
+            --template-file infrastructure/workloads/rcw-client-public-app-layer.yaml \
+            --build-dir .aws-sam/web-app
+
       - name: Deploy Web App Template
         if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml') }}
         run: |
           sam deploy \
-            --template-file ".aws-sam/build/template.yaml" \
+            --template-file ".aws-sam/web-app/template.yaml" \
             --stack-name RCW-Architecture-App-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
             --region us-west-1 \
             --parameter-overrides Environment=Dev
 
+      - name: Clean DB Build Directory
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
+        run: rm -rf .aws-sam/db
+
+      - name: Build DB
+        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
+        run: |
+          sam build \
+            --template-file infrastructure/workloads/rcw-client-public-db-layer.yaml \
+            --build-dir .aws-sam/db
+
       - name: Deploy DB Template
         if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
         run: |
           sam deploy \
-            --template-file ".aws-sam/build/template.yaml" \
+            --template-file ".aws-sam/db/template.yaml" \
             --stack-name RCW-Architecture-DB-Dev \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-execute-changeset \
