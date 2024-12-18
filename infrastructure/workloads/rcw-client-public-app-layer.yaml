@@ -40,14 +40,10 @@ Resources:
       BucketName: rcw-log-bucket
       AccessControl: Private
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Storage
-        - Key: Name
-          Value: RCW-Log-Bucket
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Storage
+        Name: RCW-LogBucket
+        Environment: !Ref Environment
 
   ### Lambda Execution Role ###
   LambdaExecutionRole:
@@ -97,14 +93,10 @@ Resources:
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/my-first-configuration-set"
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Security
-        - Key: Name
-          Value: RCW-Backend-Execution-Role
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Security
+        Name: RCW-PublicBackendExecutionRole
+        Environment: !Ref Environment
 
   ClientPublicBackendLayer:
       Type: AWS::Lambda::LayerVersion
@@ -276,14 +268,10 @@ Resources:
             Method: OPTIONS
             RestApiId: !Ref ClientPublicBackendApi
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-Backend
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendFunction
+        Environment: !Ref Environment
 
   ### API Gateway for Client Public Backend ###
   ClientPublicBackendApi:
@@ -305,14 +293,10 @@ Resources:
           - Authorization
         AllowOrigin: '*'
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-Backend
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendAPI
+        Environment: !Ref Environment
 
   ### SES Identities ###
   SESIdentityRecipent:
@@ -320,28 +304,20 @@ Resources:
     Properties:
       EmailIdentity: !Ref EmailIdentityRecipientParameter
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-SES
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-SES
+        Environment: !Ref Environment
   
   SESIdentitySender:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: !Ref EmailIdentitySenderParameter
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-SES
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-SES
+        Environment: !Ref Environment
 
   ### SES Parameters ###
   SESRecipientParameter:
@@ -351,14 +327,10 @@ Resources:
       Type: String
       Value: !Ref EmailIdentityRecipientParameter
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-Param
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
 
     SESIdentitySenderParameter:
     Type: AWS::SSM::Parameter
@@ -367,14 +339,10 @@ Resources:
       Type: String
       Value: !Ref EmailIdentitySenderParameter
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-Param
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
 
   ### Paypal Parameters ###
   PaypalClientIdParameter:
@@ -384,14 +352,10 @@ Resources:
       Type: SecureString
       Value: !Ref PayPalClientId
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-Param
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
 
   PaypalSecretParameter:
     Type: AWS::SSM::Parameter
@@ -400,14 +364,10 @@ Resources:
       Type: SecureString
       Value: !Ref PaypalSecret
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-Param
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
 
   # CodePipeline:
   #   Type: AWS::CodePipeline::Pipeline

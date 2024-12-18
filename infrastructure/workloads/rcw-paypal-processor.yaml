@@ -70,14 +70,10 @@ Resources:
                   - "ssm:GetParameter"
                 Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-paypal-processor-gcp-service-account"
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-PaypalProcessorLambdaExecutionRole
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PaypalProcessorLambdaExecutionRole
+        Environment: !Ref Environment
 
   PayPalProcessorFunctionLayer:
     Type: AWS::Serverless::LayerVersion
@@ -110,14 +106,10 @@ Resources:
             Path: /paypal-webhook
             Method: POST
       Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Application
-        - Key: Name
-          Value: RCW-PayPalProcessorFunction
-        - Key: Environment
-          Value: !Ref Environment
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PayPalProcessorFunction
+        Environment: !Ref Environment
 
 Outputs:
   PayPalProcessorLambdaFunctionArn:
