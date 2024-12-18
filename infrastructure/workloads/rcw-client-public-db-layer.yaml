@@ -39,7 +39,7 @@ Resources:
     Properties:
       TableName: SubscriptionsAndPayments
       AttributeDefinitions:
-        - AttributeName: billing_agreement_id
+        - AttributeName: id
           AttributeType: S
         - AttributeName: data_type
           AttributeType: S
@@ -48,7 +48,7 @@ Resources:
         - AttributeName: email
           AttributeType: S  # Optional attribute for user email
       KeySchema:
-        - AttributeName: billing_agreement_id
+        - AttributeName: id
           KeyType: HASH
         - AttributeName: data_type
           KeyType: RANGE
@@ -63,7 +63,7 @@ Resources:
       LocalSecondaryIndexes:
         - IndexName: EmailIndex
           KeySchema:
-            - AttributeName: billing_agreement_id
+            - AttributeName: id
               KeyType: HASH
             - AttributeName: email
               KeyType: RANGE

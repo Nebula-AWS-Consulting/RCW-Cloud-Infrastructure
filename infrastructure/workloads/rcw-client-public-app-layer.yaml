@@ -8,6 +8,22 @@ Parameters:
     Default: Dev
     Description: Environment name for the VPC
 
+  EmailIdentityRecipientParameter:
+    Type: String
+    Description: Email address to be used for SES identity recipient
+
+  EmailIdentitySenderParameter:
+    Type: String
+    Description: Email address to be used for SES identity sender
+
+  PaypalSecret:
+    Type: String
+    Description: Paypal secret
+  
+  PayPalClientId:
+    Type: String
+    Description: Paypal client id
+
 Globals:
   Function:
     Runtime: python3.8
@@ -271,6 +287,47 @@ Resources:
         AllowOrigin: '*'
       Tags:
         Environment: !Ref Environment
+
+  ### SES Identities ###
+  SESIdentityRecipent:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref EmailIdentityRecipientParameter
+  
+  SESIdentitySender:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref EmailIdentitySenderParameter
+
+  ### SES Parameters ###
+  SESRecipientParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/SESRecipientParameter
+      Type: String
+      Value: !Ref EmailIdentityRecipientParameter
+
+    SESIdentitySenderParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/SESIdentitySenderParameter
+      Type: String
+      Value: !Ref EmailIdentitySenderParameter
+
+  ### Paypal Parameters ###
+  PaypalClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/PAYPAL_CLIENT_ID
+      Type: SecureString
+      Value: !Ref PayPalClientId
+
+  PaypalSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/PAYPAL_SECRET
+      Type: SecureString
+      Value: !Ref PaypalSecret
 
   # CodePipeline:
   #   Type: AWS::CodePipeline::Pipeline
