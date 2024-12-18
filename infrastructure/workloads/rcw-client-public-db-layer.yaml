@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: DynamoDB Table for Admin Data
+Description: DynamoDB Tables for Admin Data and Subscriptions/Payments
 
 Parameters:
   Environment:
@@ -33,7 +33,51 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
+  ### DynamoDB Table for Subscriptions and Payments ###
+  SubscriptionsAndPaymentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SubscriptionsAndPayments
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: data_type
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S  # For GSI
+        - AttributeName: email
+          AttributeType: S  # Optional attribute for user email
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: data_type
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: UserIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      LocalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: id
+              KeyType: HASH
+            - AttributeName: email
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
 Outputs:
   AdminTableName:
     Value: !Ref AdminTable
     Description: "DynamoDB Table for admin data"
+
+  SubscriptionsAndPaymentsTableName:
+    Value: !Ref SubscriptionsAndPaymentsTable
+    Description: "DynamoDB Table for subscriptions and payments"

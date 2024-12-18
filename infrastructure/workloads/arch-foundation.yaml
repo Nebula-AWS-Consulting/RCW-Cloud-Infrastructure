@@ -152,6 +152,15 @@ Resources:
           AttributeDataType: String
           Mutable: true
           Required: false
+      Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Security
+        - Key: Name
+          Value: RCW-PublicRouteTable
+        - Key: Environment
+          Value: !Ref Environment
 
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -171,6 +180,15 @@ Resources:
       ExplicitAuthFlows:
         - ADMIN_NO_SRP_AUTH
         - USER_PASSWORD_AUTH
+      Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Security
+        - Key: Name
+          Value: RCW-PublicRouteTable
+        - Key: Environment
+          Value: !Ref Environment
 
   ### AWS WAF ###
 
@@ -198,19 +216,15 @@ Resources:
             ManagedRuleGroupStatement:
               VendorName: AWS
               Name: AWSManagedRulesCommonRuleSet
-
-  CodeCommitRepository:
-    Type: AWS::CodeCommit::Repository
-    Properties:
-      RepositoryName: RCW-Infrastructure-Campaign
-      RepositoryDescription: Repository for the RCW-Website
       Tags:
-        - Key: Environment
-          Value: Development
         - Key: Infrastructure
           Value: RCW
         - Key: Component
-          Value: Code
+          Value: Networking
+        - Key: Name
+          Value: RCW-PublicRouteTable
+        - Key: Environment
+          Value: !Ref Environment
 
   ### IAM Users ###
 
@@ -238,6 +252,15 @@ Resources:
       GroupName: AdminGroup
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
+      Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Security
+        - Key: Name
+          Value: RCW-PublicRouteTable
+        - Key: Environment
+          Value: !Ref Environment
 
   ### Output Values ###
 
