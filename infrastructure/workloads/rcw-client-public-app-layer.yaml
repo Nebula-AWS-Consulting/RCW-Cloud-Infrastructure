@@ -48,7 +48,7 @@ Resources:
         Infrastructure: RCW
         Component: Storage
         Name: RCW-LogBucket
-        # Environment: !Ref Environment
+        Environment: !Ref Environment
 
   ### Lambda Execution Role ###
   LambdaExecutionRole:
