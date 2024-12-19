@@ -600,3 +600,13 @@ Outputs:
   PaypalSecretParameterValue:
     Value: !Ref PaypalSecretParameter
     Description: "Paypal Secret Parameter"
+
+    DebugParameters:
+    Value: !Sub |
+      Environment=${Environment},
+      EmailRecipient=${EmailIdentityRecipientParameter},
+      EmailSender=${EmailIdentitySenderParameter},
+      PaypalSecret=${PaypalSecret},
+      PaypalClientId=${PayPalClientId},
+      ConfigurationSet=${ConfigurationSet}
+    Description: Debug parameter values
