@@ -10,10 +10,12 @@ Parameters:
 
   EmailIdentityRecipientParameter:
     Type: String
+    Default: "default-recipient@example.com"
     Description: Email address to be used for SES identity recipient
 
   EmailIdentitySenderParameter:
     Type: String
+    Default: "default-sender@example.com"
     Description: Email address to be used for SES identity sender
 
   PaypalSecret:
