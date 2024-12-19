@@ -601,7 +601,7 @@ Outputs:
     Value: !Ref PaypalSecretParameter
     Description: "Paypal Secret Parameter"
 
-    DebugParameters:
+  DebugParameters:
     Value: !Sub |
       Environment=${Environment},
       EmailRecipient=${EmailIdentityRecipientParameter},
