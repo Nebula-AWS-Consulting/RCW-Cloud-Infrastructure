@@ -47,10 +47,14 @@ Resources:
       BucketName: rcw-log-bucket
       AccessControl: Private
       Tags:
-        Infrastructure: RCW
-        Component: Storage
-        Name: RCW-LogBucket
-        Environment: !Ref Environment
+      - Key: Infrastructure
+        Value: RCW
+      - Key: Component
+        Value: Storage
+      - Key: Name
+        Value: RCW-LogBucket
+      - Key: Environment
+        Value: !Ref Environment
 
   ### Lambda Execution Role ###
   LambdaExecutionRole:
@@ -100,10 +104,14 @@ Resources:
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${ConfigurationSet}"
       Tags:
-        Infrastructure: RCW
-        Component: Security
-        Name: RCW-PublicBackendExecutionRole
-        Environment: !Ref Environment
+      - Key: Infrastructure
+        Value: RCW
+      - Key: Component
+        Value: Security
+      - Key: Name
+        Value: RCW-PublicBackendExecutionRole
+      - Key: Environment
+        Value: !Ref Environment
 
   ClientPublicBackendLayer:
       Type: AWS::Lambda::LayerVersion
@@ -310,21 +318,11 @@ Resources:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: !Ref EmailIdentityRecipientParameter
-      Tags:
-        Infrastructure: RCW
-        Component: Application
-        Name: RCW-SES
-        Environment: !Ref Environment
   
   SESIdentitySender:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: !Ref EmailIdentitySenderParameter
-      Tags:
-        Infrastructure: RCW
-        Component: Application
-        Name: RCW-SES
-        Environment: !Ref Environment
 
   ### SES Parameters ###
   SESRecipientParameter:
@@ -356,7 +354,7 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Name: /rcw-client-backend/PAYPAL_CLIENT_ID
-      Type: SecureString
+      Type: String
       Value: !Ref PayPalClientId
       Tags:
         Infrastructure: RCW
@@ -368,7 +366,7 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Name: /rcw-client-backend/PAYPAL_SECRET
-      Type: SecureString
+      Type: String
       Value: !Ref PaypalSecret
       Tags:
         Infrastructure: RCW
@@ -602,13 +600,3 @@ Outputs:
   PaypalSecretParameterValue:
     Value: !Ref PaypalSecretParameter
     Description: "Paypal Secret Parameter"
-
-  DebugParameters:
-    Value: !Sub |
-      Environment=${Environment},
-      EmailRecipient=${EmailIdentityRecipientParameter},
-      EmailSender=${EmailIdentitySenderParameter},
-      PaypalSecret=${PaypalSecret},
-      PaypalClientId=${PayPalClientId},
-      ConfigurationSet=${ConfigurationSet}
-    Description: Debug parameter values
