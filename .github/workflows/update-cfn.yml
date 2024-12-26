@@ -92,12 +92,12 @@ jobs:
             --no-execute-changeset \
             --region us-west-1 \
             --parameter-overrides \
-              Environment=Dev \
-              EmailIdentityRecipientParameter=emmanuelurias60@icloud.com \
-              EmailIdentitySenderParameter=emmanuelurias60@nebulaawsconsulting.com \
-              PaypalSecret=${{ secrets.PAYPAL_SECRET }} \
-              PayPalClientId=${{ secrets.PAYPAL_CLIENT_ID }} \
-              ConfigurationSet=my-first-configuration-set
+                Environment=Dev \
+                EmailIdentityRecipientParameter=emmanuelurias60@icloud.com \
+                EmailIdentitySenderParameter=emmanuelurias60@nebulaawsconsulting.com \
+                PaypalSecret=${{ secrets.PAYPAL_SECRET }} \
+                PayPalClientId=${{ secrets.PAYPAL_CLIENT_ID }} \
+                ConfigurationSet=my-first-configuration-set
 
       - name: Clean DB Build Directory
         if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}

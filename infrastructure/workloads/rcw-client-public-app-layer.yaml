@@ -374,7 +374,7 @@ Resources:
         Infrastructure: RCW
         Component: Application
         Name: RCW-Param
-        # Environment: !Ref Environment
+        Environment: !Ref Environment
 
   # CodePipeline:
   #   Type: AWS::CodePipeline::Pipeline
