@@ -339,7 +339,7 @@ Resources:
         Name: RCW-Param
         Environment: !Ref Environment
 
-    SESIdentitySenderParameter:
+  SESIdentitySenderParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Name: /rcw-client-backend/SESIdentitySenderParameter
