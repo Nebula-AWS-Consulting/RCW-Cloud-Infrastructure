@@ -30,8 +30,8 @@ jobs:
         id: changes
         run: |
           echo "Detecting file changes..."
-          git fetch --unshallow || true  # Ensure full history is available
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changes_detected.txt
+          git fetch origin ${{ github.ref_name }} || true  # Ensure the branch is fully updated
+          git diff --name-only HEAD~1 > changes_detected.txt
           cat changes_detected.txt | grep 'infrastructure/' > filtered_changes.txt || echo "no-changes" > filtered_changes.txt
           cat filtered_changes.txt
 
