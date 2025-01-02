@@ -47,13 +47,18 @@ jobs:
         if: env.should_run == 'true'
         run: |
           echo "Uploading changed files to S3..."
+
+          if [ ! -s changed_files.txt ]; then
+            echo "No changes detected. Skipping upload."
+            exit 0
+          fi
+
           while read file; do
             if [[ $file == no-changes ]]; then
               echo "No changes detected. Skipping upload."
               exit 0
             fi
 
-            # Determine S3 path based on file location
             if [[ $file == infrastructure/arch-foundation.yaml ]]; then
               s3_path="templates/arch-foundation.yaml"
             elif [[ $file == infrastructure/client-public-db.yaml ]]; then
