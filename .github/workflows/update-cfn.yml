@@ -61,11 +61,11 @@ jobs:
 
             if [[ $file == infrastructure/arch-foundation.yaml ]]; then
               s3_path="templates/arch-foundation.yaml"
-            elif [[ $file == infrastructure/client-public-db.yaml ]]; then
+            elif [[ $file == infrastructure/rcw-client-public-db-layer.yaml ]]; then
               s3_path="templates/client-public-db.yaml"
-            elif [[ $file == infrastructure/client-public-app.yaml ]]; then
+            elif [[ $file == infrastructure/rcw-client-public-app-layer.yaml ]]; then
               s3_path="templates/client-public-app.yaml"
-            elif [[ $file == infrastructure/paypal-processor.yaml ]]; then
+            elif [[ $file == infrastructure/rcw-paypal-processor.yaml ]]; then
               s3_path="templates/paypal-processor.yaml"
             else
               echo "Unknown file: $file. Skipping."
