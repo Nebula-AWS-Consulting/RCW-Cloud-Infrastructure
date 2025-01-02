@@ -76,7 +76,7 @@ jobs:
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --region us-west-1 \
             --parameter-overrides \
-              Environment=Dev \
+              Environment=Prod \
               FoundationTemplateS3Uri=s3://rcw-code-bucket/templates/arch-foundation.yaml \
               ClientPublicDBTemplateS3Uri=s3://rcw-code-bucket/templates/client-public-db.yaml \
               ClientPublicAppS3Uri=s3://rcw-code-bucket/templates/client-public-app.yaml \
