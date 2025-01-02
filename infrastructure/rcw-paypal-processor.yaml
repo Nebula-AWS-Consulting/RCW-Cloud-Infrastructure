@@ -78,6 +78,7 @@ Resources:
         Component: Application
         Name: RCW-PaypalProcessorLambdaExecutionRole
         Environment: !Ref Environment
+        Type: LambdaExecutionRole
 
   PayPalProcessorFunctionLayer:
     Type: AWS::Serverless::LayerVersion
