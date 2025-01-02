@@ -12,7 +12,7 @@ Resources:
   AdminTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: AdminTable
+      TableName: !Sub "AdminTable-${Environment}"
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -37,7 +37,7 @@ Resources:
   SubscriptionsAndPaymentsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: SubscriptionsAndPayments
+      TableName: !Sub "SubscriptionsAndPayments-${Environment}"
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S

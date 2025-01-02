@@ -25,7 +25,7 @@ Resources:
   PayPalProcessorLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: PayPalProcessorLambdaExecutionRole
+      RoleName: !Sub "PayPalProcessorLambdaExecutionRole-${Environment}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -76,7 +76,7 @@ Resources:
       Tags:
         Infrastructure: RCW
         Component: Application
-        Name: RCW-PaypalProcessorLambdaExecutionRole
+        Name: !Sub "RCW-PayPalProcessorLambdaExecutionRole-${Environment}"
         Environment: !Ref Environment
 
   PayPalProcessorFunctionLayer:
@@ -90,7 +90,7 @@ Resources:
   PayPalProcessorFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: PayPal-Processor
+      FunctionName: !Sub "PayPal-Processor-${Environment}"
       Role: !GetAtt PayPalProcessorLambdaExecutionRole.Arn
       CodeUri: s3://rcw-code-bucket/paypal-processor/paypal-processor.zip
       Runtime: python3.8
