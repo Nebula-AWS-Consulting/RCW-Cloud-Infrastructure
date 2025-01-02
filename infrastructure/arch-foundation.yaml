@@ -129,7 +129,7 @@ Resources:
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: RCW-UserPool
+      UserPoolName: !Sub "RCW-UserPool-${Environment}"
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
       UsernameAttributes:
@@ -165,7 +165,7 @@ Resources:
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: RCW-UserPoolClient
+      ClientName: !Sub "RCW-UserPoolClient-${Environment}"
       UserPoolId: !Ref UserPool
       GenerateSecret: false
       AllowedOAuthFlows:
@@ -195,7 +195,7 @@ Resources:
   WebACL:
     Type: AWS::WAFv2::WebACL
     Properties:
-      Name: RCW-WebACL
+      Name: !Sub "RCW-WebACL-${Environment}"
       Scope: REGIONAL
       DefaultAction:
         Allow: {}
@@ -231,7 +231,7 @@ Resources:
   AdminUser:
     Type: AWS::IAM::User
     Properties:
-      UserName: AdminUser
+      UserName: !Sub "AdminUser-${Environment}"
       Groups:
         - !Ref AdminGroup
       Tags:
@@ -249,7 +249,7 @@ Resources:
   AdminGroup:
     Type: AWS::IAM::Group
     Properties:
-      GroupName: AdminGroup
+      GroupName: !Sub "AdminGroup-${Environment}"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
       Tags:
@@ -266,7 +266,7 @@ Resources:
   SESConfigurationSet:
     Type: AWS::SES::ConfigurationSet
     Properties:
-      Name: RCW-EmailConfigurationSet
+      Name: !Sub "RCW-EmailConfigurationSet-${Environment}"
 
   ### Event Destination for Configuration Set ###
   SESConfigurationSetEventDestination:

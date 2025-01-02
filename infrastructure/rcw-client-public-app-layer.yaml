@@ -61,7 +61,7 @@ Resources:
   LogBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: rcw-log-bucket
+      BucketName: !Sub "rcw-log-bucket-${Environment}"
       AccessControl: Private
       Tags:
       - Key: Infrastructure
@@ -77,7 +77,7 @@ Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: LambdaExecutionRole
+      RoleName: !Sub "LambdaExecutionRole-${Environment}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -134,7 +134,7 @@ Resources:
   ClientPublicBackendLayer:
       Type: AWS::Lambda::LayerVersion
       Properties:
-        LayerName: ClientPublicBackendLayer
+        LayerName: !Sub "ClientPublicBackendLayer-${Environment}"
         Description: Layer for Lambda dependencies
         Content:
           S3Bucket: rcw-code-bucket
@@ -146,7 +146,7 @@ Resources:
   ClientPublicBackendFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: ClientPublicBackendFunction
+      FunctionName: !Sub "ClientPublicBackendFunction-${Environment}"
       Role: !GetAtt LambdaExecutionRole.Arn
       CodeUri: s3://rcw-code-bucket/client-public-backend/function.zip
       Layers:
@@ -310,7 +310,7 @@ Resources:
   ClientPublicBackendApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: ClientPublicBackendApi
+      Name: !Sub "ClientPublicBackendApi-${Environment}"
       StageName: prod
       EndpointConfiguration:
         Type: REGIONAL
@@ -346,7 +346,7 @@ Resources:
   SESRecipientParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /rcw-client-backend/SESRecipientParameter
+      Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
       Type: String
       Value: !Ref SESIdentityRecipent
       Tags:
@@ -358,7 +358,7 @@ Resources:
   SESIdentitySenderParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /rcw-client-backend/SESIdentitySenderParameter
+      Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
       Type: String
       Value: !Ref SESIdentitySender
       Tags:
@@ -371,7 +371,7 @@ Resources:
   PaypalClientIdParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /rcw-client-backend/PAYPAL_CLIENT_ID
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_CLIENT_ID"
       Type: String
       Value: !Ref PayPalClientId
       Tags:
@@ -383,7 +383,7 @@ Resources:
   PaypalSecretParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /rcw-client-backend/PAYPAL_SECRET
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_SECRET"
       Type: String
       Value: !Ref PaypalSecret
       Tags:
@@ -395,7 +395,7 @@ Resources:
   AmplifyApp:
     Type: AWS::Amplify::App
     Properties:
-      Name: RCW-PublicApp
+      Name: !Sub "RCW-PublicApp-${Environment}"
       Repository: !Ref Repository
       OauthToken: !Ref OauthToken
       EnvironmentVariables:
