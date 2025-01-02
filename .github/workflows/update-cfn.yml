@@ -30,14 +30,16 @@ jobs:
         id: changes
         run: |
           echo "Detecting file changes..."
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'infrastructure/' || echo "no-changes" > changes_detected.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'infrastructure/' > changes_detected.txt || echo "no-changes" >> changes_detected.txt
           cat changes_detected.txt
+
           if grep -q "no-changes" changes_detected.txt; then
             echo "No changes detected in templates. Skipping deployment."
             echo "should_run=false" >> $GITHUB_ENV
           else
             echo "Changes detected in templates. Proceeding with deployment."
             echo "should_run=true" >> $GITHUB_ENV
+          fi
 
       - name: Upload changed files to S3
         if: env.should_run == 'true'
