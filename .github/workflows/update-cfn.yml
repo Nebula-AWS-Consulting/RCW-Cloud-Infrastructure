@@ -86,10 +86,10 @@ jobs:
             --region us-west-1 \
             --parameter-overrides \
               Environment=Prod \
-              FoundationTemplateS3Uri=s3://rcw-code-bucket/templates/arch-foundation.yaml \
-              ClientPublicDBTemplateS3Uri=s3://rcw-code-bucket/templates/client-public-db.yaml \
-              ClientPublicAppS3Uri=s3://rcw-code-bucket/templates/client-public-app.yaml \
-              PaypalProcessorS3Uri=s3://rcw-code-bucket/templates/paypal-processor.yaml \
+              FoundationTemplateS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/arch-foundation.yaml \
+              ClientPublicDBTemplateS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/client-public-db.yaml \
+              ClientPublicAppS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/client-public-app.yaml \
+              PaypalProcessorS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/paypal-processor.yaml \
               EmailIdentityRecipientEmail=emmanuelurias60@icloud.com \
               EmailIdentitySenderEmail=emmanuelurias60@nebulaawsconsulting.com \
               PaypalSecret=${{ secrets.PAYPAL_SECRET }} \
