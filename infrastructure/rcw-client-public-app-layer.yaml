@@ -72,8 +72,6 @@ Resources:
         Value: RCW-LogBucket
       - Key: Environment
         Value: !Ref Environment
-      - Key: Description
-        Value: S3 Bucket for logs
 
   ### Lambda Execution Role ###
   LambdaExecutionRole:

@@ -82,7 +82,7 @@ jobs:
           aws cloudformation deploy \
             --template-file infrastructure/rcw-infra.yaml \
             --stack-name RCW-Infrastructure-Prod \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
             --region us-west-1 \
             --parameter-overrides \
               Environment=Prod \
