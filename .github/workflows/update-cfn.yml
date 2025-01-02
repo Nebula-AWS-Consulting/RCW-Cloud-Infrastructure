@@ -48,7 +48,7 @@ jobs:
         run: |
           echo "Uploading changed files to S3..."
 
-          if [ ! -s changed_files.txt ]; then
+          if [ ! -s filtered_changes.txt ]; then
             echo "No changes detected. Skipping upload."
             exit 0
           fi
@@ -73,7 +73,7 @@ jobs:
             fi
 
             aws s3 cp "$file" "s3://rcw-code-bucket/$s3_path" --region us-west-1
-          done < changed_files.txt
+          done < filtered_changes.txt
 
       - name: Deploy Parent Template
         if: env.should_run == 'true'
