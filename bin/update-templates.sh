@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Variables
-WORKLOAD_FOLDER="./infrastructure/workload"
-S3_BUCKET="rcw-code-bucket/infrastructure"
+WORKLOAD_FOLDER="./infrastructure/"
+S3_BUCKET="rcw-code-bucket/templates"
 REGION="us-west-1"
 
 # Check if AWS CLI is installed
