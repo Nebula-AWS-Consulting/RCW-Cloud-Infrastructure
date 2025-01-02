@@ -55,8 +55,6 @@ Resources:
           Value: RCW-InternetGateway
         - Key: Environment
           Value: !Ref Environment
-        - Key: test
-          Value: test
 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
