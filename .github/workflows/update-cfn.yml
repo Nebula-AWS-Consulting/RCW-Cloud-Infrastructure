@@ -30,10 +30,12 @@ jobs:
         id: changes
         run: |
           echo "Detecting file changes..."
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'infrastructure/' > changes_detected.txt || echo "no-changes" >> changes_detected.txt
-          cat changes_detected.txt
+          git fetch --unshallow || true  # Ensure full history is available
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changes_detected.txt
+          cat changes_detected.txt | grep 'infrastructure/' > filtered_changes.txt || echo "no-changes" > filtered_changes.txt
+          cat filtered_changes.txt
 
-          if grep -q "no-changes" changes_detected.txt; then
+          if grep -q "no-changes" filtered_changes.txt; then
             echo "No changes detected in templates. Skipping deployment."
             echo "should_run=false" >> $GITHUB_ENV
           else
