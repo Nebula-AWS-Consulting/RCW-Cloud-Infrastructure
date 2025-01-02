@@ -29,94 +29,64 @@ jobs:
       - name: Detect changed files
         id: changes
         run: |
-          echo "Changed files:"
-          git diff --name-only HEAD~1 > changed_files.txt
-          cat changed_files.txt
-          echo "files=$(cat changed_files.txt | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "Detecting file changes..."
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'infrastructure/' || echo "no-changes" > changes_detected.txt
+          cat changes_detected.txt
+          if grep -q "no-changes" changes_detected.txt; then
+            echo "No changes detected in templates. Skipping deployment."
+            echo "should_run=false" >> $GITHUB_ENV
+          else
+            echo "Changes detected in templates. Proceeding with deployment."
+            echo "should_run=true" >> $GITHUB_ENV
 
-      - name: Debug changed files
-        run: echo "${{ env.files }}"
-
-      - name: Deploy Foundation Template
-        if: ${{ contains(env.files, 'infrastructure/workloads/arch-foundation.yaml') }}
+      - name: Upload changed files to S3
+        if: env.should_run == 'true'
         run: |
+          echo "Uploading changed files to S3..."
+          while read file; do
+            if [[ $file == no-changes ]]; then
+              echo "No changes detected. Skipping upload."
+              exit 0
+            fi
+
+            # Determine S3 path based on file location
+            if [[ $file == infrastructure/arch-foundation.yaml ]]; then
+              s3_path="templates/arch-foundation.yaml"
+            elif [[ $file == infrastructure/client-public-db.yaml ]]; then
+              s3_path="templates/client-public-db.yaml"
+            elif [[ $file == infrastructure/client-public-app.yaml ]]; then
+              s3_path="templates/client-public-app.yaml"
+            elif [[ $file == infrastructure/paypal-processor.yaml ]]; then
+              s3_path="templates/paypal-processor.yaml"
+            else
+              echo "Unknown file: $file. Skipping."
+              continue
+            fi
+
+            aws s3 cp "$file" "s3://rcw-code-bucket/$s3_path" --region us-west-1
+          done < changed_files.txt
+
+      - name: Deploy Parent Template
+        if: env.should_run == 'true'
+        run: |
+          echo "Deploying parent template..."
           aws cloudformation deploy \
-            --template-file infrastructure/workloads/arch-foundation.yaml \
-            --stack-name RCW-Architecture-Foundation-Dev \
+            --template-file infrastructure/rcw-infra.yaml \
+            --stack-name RCW-Infrastructure-Prod \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --no-execute-changeset \
             --region us-west-1 \
             --parameter-overrides \
-                Environment=Dev
-
-      - name: Clean Paypal Processor Build Directory
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml') }}
-        run: rm -rf .aws-sam/paypal-processor
-
-      - name: Build Paypal Processor
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml') }}
-        run: |
-          sam build \
-            --template-file infrastructure/workloads/rcw-paypal-processor.yaml \
-            --build-dir .aws-sam/paypal-processor
-
-      - name: Deploy Paypal Processor Template
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-paypal-processor.yaml') }}
-        run: |
-          sam deploy \
-            --template-file ".aws-sam/paypal-processor/template.yaml" \
-            --stack-name RCW-Architecture-Paypal-Processor-Dev \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --no-execute-changeset \
-            --region us-west-1 \
-            --parameter-overrides Environment=Dev
-
-      - name: Clean Web App Build Directory
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml') }}
-        run: rm -rf .aws-sam/web-app
-
-      - name: Build Web App
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml') }}
-        run: |
-          sam build \
-            --template-file infrastructure/workloads/rcw-client-public-app-layer.yaml \
-            --build-dir .aws-sam/web-app
-
-      - name: Deploy Web App Template
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-app-layer.yaml') }}
-        run: |
-          sam deploy \
-            --template-file ".aws-sam/web-app/template.yaml" \
-            --stack-name RCW-Architecture-App-Dev \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --no-execute-changeset \
-            --region us-west-1 \
-            --parameter-overrides \
-                Environment=Dev \
-                EmailIdentityRecipientParameter=emmanuelurias60@icloud.com \
-                EmailIdentitySenderParameter=emmanuelurias60@nebulaawsconsulting.com \
-                PaypalSecret=${{ secrets.PAYPAL_SECRET }} \
-                PayPalClientId=${{ secrets.PAYPAL_CLIENT_ID }} \
-                ConfigurationSet=my-first-configuration-set
-
-      - name: Clean DB Build Directory
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
-        run: rm -rf .aws-sam/db
-
-      - name: Build DB
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
-        run: |
-          sam build \
-            --template-file infrastructure/workloads/rcw-client-public-db-layer.yaml \
-            --build-dir .aws-sam/db
-
-      - name: Deploy DB Template
-        if: ${{ contains(env.files, 'infrastructure/workloads/rcw-client-public-db-layer.yaml') }}
-        run: |
-          sam deploy \
-            --template-file ".aws-sam/db/template.yaml" \
-            --stack-name RCW-Architecture-DB-Dev \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --no-execute-changeset \
-            --region us-west-1 \
-            --parameter-overrides Environment=Dev
+              Environment=Prod \
+              FoundationTemplateS3Uri=s3://rcw-code-bucket/templates/arch-foundation.yaml \
+              ClientPublicDBTemplateS3Uri=s3://rcw-code-bucket/templates/client-public-db.yaml \
+              ClientPublicAppS3Uri=s3://rcw-code-bucket/templates/client-public-app.yaml \
+              PaypalProcessorS3Uri=s3://rcw-code-bucket/templates/paypal-processor.yaml \
+              EmailIdentityRecipientEmail=emmanuelurias60@icloud.com \
+              EmailIdentitySenderEmail=emmanuelurias60@nebulaawsconsulting.com \
+              PaypalSecret=${{ secrets.PAYPAL_SECRET }} \
+              PayPalClientId=${{ secrets.PAYPAL_CLIENT_ID }} \
+              SpreadSheetId=1Jpicnmuuuy7aS__mGb-3sLgED9vxvELrvffrDtOHWjo \
+              Repository=https://github.com/Nebula-AWS-Consulting/RCW-Infrastructure-Campaign \
+              Branch=main \
+              OauthToken=${{ secrets.OAUTH_TOKEN }} \
+              DomainName=restoredchurchlv.org

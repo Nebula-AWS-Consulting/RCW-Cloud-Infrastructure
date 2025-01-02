@@ -38,8 +38,9 @@ sam deploy \
         Environment=Dev \
         EmailIdentityRecipientParameter=emmanuelurias60@icloud.com \
         EmailIdentitySenderParameter=emmanuelurias60@nebulaawsconsulting.com \
-        PaypalSecret=$PAYPAL_CLIENT_ID \
-        PayPalClientId=$PAYPAL_SECRET
+        PaypalSecret={$PAYPAL_CLIENT_ID} \
+        PayPalClientId={$PAYPAL_SECRET} \
+        ConfigurationSet=my-first-configuration-set
 
 if [ $? -ne 0 ]; then
     echo "SAM deploy failed. Exiting..."

@@ -8,14 +8,12 @@ Parameters:
     Default: Dev
     Description: Environment name for the VPC
 
-  EmailIdentityRecipientParameter:
+  EmailIdentityRecipientEmail:
     Type: String
-    Default: "default-recipient@example.com"
     Description: Email address to be used for SES identity recipient
 
-  EmailIdentitySenderParameter:
+  EmailIdentitySenderEmail:
     Type: String
-    Default: "default-sender@example.com"
     Description: Email address to be used for SES identity sender
 
   PaypalSecret:
@@ -26,10 +24,29 @@ Parameters:
     Type: String
     Description: Paypal client id
 
-  ConfigurationSet:
+  SESConfigurationSetName:
     Type: String
-    Default: my-first-configuration-set
     Description: Configuration set name for SES
+
+  UserPoolId:
+    Type: String
+    Description: User pool id for Cognito
+  
+  Repository:
+    Type: String
+    Description: URL of the Git repository (e.g., https://github.com/user/repo)
+  
+  Branch:
+    Type: String
+    Description: Branch to deploy from (e.g., main)
+  
+  OauthToken:
+    Type: String
+    Description: GitHub Personal Access Token
+
+  DomainName:
+    Type: String
+    Description: Domain name for the application
 
 Globals:
   Function:
@@ -89,7 +106,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - "cognito-idp:*"
-                Resource: "arn:aws:cognito-idp:*:*:userpool/us-west-1_lJ8JcxPXT"
+                Resource: "arn:aws:cognito-idp:*:*:userpool/${UserPoolId}"
 
          # SES Access Policy
         - PolicyName: SESAccessPolicy
@@ -101,8 +118,9 @@ Resources:
                   - "ses:SendEmail"
                   - "ses:SendRawEmail"
                 Resource:
-                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
-                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${ConfigurationSet}"
+                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${EmailIdentityRecipientEmail}"
+                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${EmailIdentitySenderEmail}"
+                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${SESConfigurationSetName}"
       Tags:
       - Key: Infrastructure
         Value: RCW
@@ -317,12 +335,12 @@ Resources:
   SESIdentityRecipent:
     Type: AWS::SES::EmailIdentity
     Properties:
-      EmailIdentity: !Ref EmailIdentityRecipientParameter
+      EmailIdentity: !Ref EmailIdentityRecipientEmail
   
   SESIdentitySender:
     Type: AWS::SES::EmailIdentity
     Properties:
-      EmailIdentity: !Ref EmailIdentitySenderParameter
+      EmailIdentity: !Ref EmailIdentitySenderEmail
 
   ### SES Parameters ###
   SESRecipientParameter:
@@ -374,211 +392,56 @@ Resources:
         Name: RCW-Param
         Environment: !Ref Environment
 
-  # CodePipeline:
-  #   Type: AWS::CodePipeline::Pipeline
-  #   Properties:
-  #     Name: ClientBackendPublicPipeline
-  #     RoleArn: !GetAtt CodePipelineExecutionRole.Arn
-  #     ArtifactStore:
-  #       Type: S3
-  #       Location: rcw-code-bucket
-  #     Stages:
-  #       - Name: Source
-  #         Actions:
-  #           - Name: SourceAction
-  #             ActionTypeId:
-  #               Category: Source
-  #               Owner: AWS
-  #               Provider: GitHubVersion2
-  #               Version: 1
-  #             OutputArtifacts:
-  #               - Name: SourceOutput
-  #             Configuration:
-  #               RepositoryName: RCW-Infrastructure-Campaign
-  #               Branch: main
-  #               OAuthToken: "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-codepipline-github-oath-key"
-  #       - Name: Build
-  #         Actions:
-  #           - Name: BuildAction
-  #             ActionTypeId:
-  #               Category: Build
-  #               Owner: AWS
-  #               Provider: CodeBuild
-  #               Version: 1
-  #             InputArtifacts:
-  #               - Name: SourceOutput
-  #             OutputArtifacts:
-  #               - Name: BuildOutput
-  #             Configuration:
-  #               ProjectName: RCWClientPublicBackendProject
-  #               BuildSpec: src/server/buildspec.yml
-  #       - Name: Deploy
-  #         Actions:
-  #           - Name: CodeDeployDeployAction
-  #             ActionTypeId:
-  #               Category: Deploy
-  #               Owner: AWS
-  #               Provider: CodeDeploy
-  #               Version: 1
-  #             InputArtifacts:
-  #               - Name: BuildOutput
-  #             Configuration:
-  #               ApplicationName: !Ref ClientPublicBackendApp
-  #               DeploymentGroupName: ClientPublicBackendDeploymentGroup
+  AmplifyApp:
+    Type: AWS::Amplify::App
+    Properties:
+      Name: RCW-PublicApp
+      Repository: !Ref Repository
+      OauthToken: !Ref OauthToken
+      EnvironmentVariables:
+        - Name: ENVIRONMENT
+          Value: !Ref Environment
+        - Name: API_LINK
+          Value: !Sub "https://${ClientPublicBackendApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+      Branches:
+        - BranchName: !Ref Branch
+      CustomRules:
+        - Source: "</*>" 
+          Target: "/index.html"
+          Status: "200"
+      BuildSpec: |
+        version: 1
+        frontend:
+            phases:
+                preBuild:
+                    commands:
+                        - cd src/client-frontend
+                        - npm install
+                build:
+                    commands:
+                        - npm run build
+            artifacts:
+                baseDirectory: src/client-frontend/dist
+                files:
+                    - '**/*'
+            cache:
+                paths:
+                    - src/client-frontend/node_modules/**/* 
 
-  # CodePipelineExecutionRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     RoleName: CodePipelineExecutionRole
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service: codepipeline.amazonaws.com
-  #           Action: sts:AssumeRole
-  #     Policies:
-  #       - PolicyName: CodePipelinePermissions
-  #         PolicyDocument:
-  #           Version: "2012-10-17"
-  #           Statement:
-  #             # S3 permissions for accessing artifacts
-  #             - Effect: Allow
-  #               Action:
-  #                 - s3:GetObject
-  #                 - s3:PutObject
-  #                 - s3:ListBucket
-  #               Resource:
-  #                 - !Sub "arn:aws:s3:::rcw-code-bucket/client-public-backend"
-  #                 - !Sub "arn:aws:s3:::rcw-code-bucket/client-public-backend/*"
-  #             # CodeBuild permissions
-  #             - Effect: Allow
-  #               Action:
-  #                 - codebuild:BatchGetBuilds
-  #                 - codebuild:StartBuild
-  #               Resource: "*"
-  #             # Lambda permissions for updating function
-  #             - Effect: Allow
-  #               Action:
-  #                 - lambda:UpdateFunctionCode
-  #                 - lambda:GetFunction
-  #                 - lambda:PublishVersion
-  #                 - lambda:UpdateAlias
-  #               Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${ClientPublicBackendFunction}"
-  #             # CloudWatch permissions for logging
-  #             - Effect: Allow
-  #               Action:
-  #                 - logs:CreateLogGroup
-  #                 - logs:CreateLogStream
-  #                 - logs:PutLogEvents
-  #               Resource: "*"
-  #             # IAM permissions for passing roles
-  #             - Effect: Allow
-  #               Action: iam:PassRole
-  #               Resource: "*"
-  #             # Get parameters from SSM
-  #             - Effect: Allow
-  #               Action: ssm:GetParameter
-  #               Resource: "*"
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      AppId: !Ref AmplifyApp
+      BranchName: !Ref Branch
+      EnvironmentVariables:
+        - Name: ENVIRONMENT
+          Value: !Ref Environment
 
-  # ClientPublicBackendApp:
-  #   Type: AWS::CodeDeploy::Application
-  #   Properties:
-  #     ComputePlatform: Lambda
-
-  # CodeDeployServiceRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     RoleName: CodeDeployServiceRole
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service: codedeploy.amazonaws.com
-  #           Action: sts:AssumeRole
-  #     ManagedPolicyArns:
-  #       # CodeDeploy needs a policy that allows it to perform necessary actions
-  #       - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
-
-  # ClientPublicBackendDeploymentGroup:
-  #   Type: AWS::CodeDeploy::DeploymentGroup
-  #   Properties:
-  #     ApplicationName: !Ref ClientPublicBackendApp
-  #     DeploymentGroupName: ClientPublicBackendDeploymentGroup
-  #     ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
-  #     DeploymentConfigName: CodeDeployDefault.LambdaAllAtOnce
-  #     DeploymentStyle:
-  #       DeploymentType: BLUE_GREEN
-  #       DeploymentOption: WITH_TRAFFIC_CONTROL
-  #     AutoRollbackConfiguration:
-  #       Enabled: true
-  #       Events:
-  #         - DEPLOYMENT_FAILURE
-  #     AlarmConfiguration:
-  #       Enabled: false
-
-  # CodeBuildExecutionRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     RoleName: CodeBuildExecutionRole
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service: codebuild.amazonaws.com
-  #           Action: sts:AssumeRole
-  #     Policies:
-  #       - PolicyName: CodeBuildPermissions
-  #         PolicyDocument:
-  #           Version: "2012-10-17"
-  #           Statement:
-  #             # S3 permissions for accessing artifacts
-  #             - Effect: Allow
-  #               Action:
-  #                 - s3:GetObject
-  #                 - s3:PutObject
-  #                 - s3:ListBucket
-  #               Resource:
-  #                 - !Sub "arn:aws:s3:::rcw-code-bucket"
-  #                 - !Sub "arn:aws:s3:::rcw-code-bucket/*"
-  #             # CloudWatch permissions for logging
-  #             - Effect: Allow
-  #               Action:
-  #                 - logs:CreateLogGroup
-  #                 - logs:CreateLogStream
-  #                 - logs:PutLogEvents
-  #               Resource: "*"
-  #             # CodePipeline permissions for interacting with CodePipeline artifacts
-  #             - Effect: Allow
-  #               Action:
-  #                 - codepipeline:PutJobSuccessResult
-  #                 - codepipeline:PutJobFailureResult
-  #                 - codepipeline:PutThirdPartyJobSuccessResult
-  #                 - codepipeline:PutThirdPartyJobFailureResult
-  #               Resource: "*"
-  #             # IAM permissions to pass the role
-  #             - Effect: Allow
-  #               Action: iam:PassRole
-  #               Resource: "*"
-
-
-  # RCWClientPublicBackendProject:
-  #   Type: AWS::CodeBuild::Project
-  #   Properties:
-  #     Name: RCWClientPublicBackendProject
-  #     Source:
-  #       Type: CODEPIPELINE
-  #     Environment:
-  #       ComputeType: BUILD_GENERAL1_SMALL
-  #       Image: aws/codebuild/standard:5.0
-  #       Type: LINUX_CONTAINER
-  #     Artifacts:
-  #       Type: CODEPIPELINE
-  #     Cache:
-  #       Type: NO_CACHE
-  #     ServiceRole: !GetAtt CodeBuildExecutionRole.Arn
+  AmplifyDomain:
+    Type: AWS::Amplify::Domain
+    Properties:
+      AppId: !Ref AmplifyApp
+      DomainName: !Ref DomainName
 
 Outputs:
   LogBucketName:

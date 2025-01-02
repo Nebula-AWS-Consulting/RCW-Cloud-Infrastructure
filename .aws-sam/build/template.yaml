@@ -6,6 +6,24 @@ Parameters:
     Type: String
     Default: Dev
     Description: Environment name for the VPC
+  EmailIdentityRecipientParameter:
+    Type: String
+    Default: default-recipient@example.com
+    Description: Email address to be used for SES identity recipient
+  EmailIdentitySenderParameter:
+    Type: String
+    Default: default-sender@example.com
+    Description: Email address to be used for SES identity sender
+  PaypalSecret:
+    Type: String
+    Description: Paypal secret
+  PayPalClientId:
+    Type: String
+    Description: Paypal client id
+  ConfigurationSet:
+    Type: String
+    Default: my-first-configuration-set
+    Description: Configuration set name for SES
 Globals:
   Function:
     Runtime: python3.8
@@ -21,6 +39,12 @@ Resources:
       BucketName: rcw-log-bucket
       AccessControl: Private
       Tags:
+      - Key: Infrastructure
+        Value: RCW
+      - Key: Component
+        Value: Storage
+      - Key: Name
+        Value: RCW-LogBucket
       - Key: Environment
         Value:
           Ref: Environment
@@ -64,8 +88,14 @@ Resources:
             - ses:SendRawEmail
             Resource:
             - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
-            - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/my-first-configuration-set
+            - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${ConfigurationSet}
       Tags:
+      - Key: Infrastructure
+        Value: RCW
+      - Key: Component
+        Value: Security
+      - Key: Name
+        Value: RCW-PublicBackendExecutionRole
       - Key: Environment
         Value:
           Ref: Environment
@@ -264,6 +294,9 @@ Resources:
             RestApiId:
               Ref: ClientPublicBackendApi
       Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendFunction
         Environment:
           Ref: Environment
   ClientPublicBackendApi:
@@ -285,6 +318,71 @@ Resources:
         - Authorization
         AllowOrigin: '*'
       Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendAPI
+        Environment:
+          Ref: Environment
+  SESIdentityRecipent:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity:
+        Ref: EmailIdentityRecipientParameter
+  SESIdentitySender:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity:
+        Ref: EmailIdentitySenderParameter
+  SESRecipientParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/SESRecipientParameter
+      Type: String
+      Value:
+        Ref: SESIdentityRecipent
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment:
+          Ref: Environment
+  SESIdentitySenderParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/SESIdentitySenderParameter
+      Type: String
+      Value:
+        Ref: SESIdentitySender
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment:
+          Ref: Environment
+  PaypalClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/PAYPAL_CLIENT_ID
+      Type: String
+      Value:
+        Ref: PayPalClientId
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment:
+          Ref: Environment
+  PaypalSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/PAYPAL_SECRET
+      Type: String
+      Value:
+        Ref: PaypalSecret
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
         Environment:
           Ref: Environment
 Outputs:
@@ -302,3 +400,11 @@ Outputs:
     Value:
       Fn::Sub: https://${ClientPublicBackendApi}.execute-api.${AWS::Region}.amazonaws.com/prod
     Description: Invoke URL for the Client Public Backend API
+  PaypalClientIdParameterValue:
+    Value:
+      Ref: PaypalClientIdParameter
+    Description: Paypal Client ID Parameter
+  PaypalSecretParameterValue:
+    Value:
+      Ref: PaypalSecretParameter
+    Description: Paypal Secret Parameter
