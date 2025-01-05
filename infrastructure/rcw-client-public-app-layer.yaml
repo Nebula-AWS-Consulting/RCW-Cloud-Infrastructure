@@ -57,21 +57,21 @@ Globals:
       Environment: !Ref Environment
 
 Resources:
-  ### S3 Bucket for logs (Secured) ###
-  LogBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub "rcw-log-bucket-${Environment}"
-      AccessControl: Private
-      Tags:
-      - Key: Infrastructure
-        Value: RCW
-      - Key: Component
-        Value: Storage
-      - Key: Name
-        Value: RCW-LogBucket
-      - Key: Environment
-        Value: !Ref Environment
+  # ### S3 Bucket for logs (Secured) ###
+  # LogBucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     BucketName: !Sub "rcw-log-bucket-${Environment}"
+  #     AccessControl: Private
+  #     Tags:
+  #     - Key: Infrastructure
+  #       Value: RCW
+  #     - Key: Component
+  #       Value: Storage
+  #     - Key: Name
+  #       Value: RCW-LogBucket
+  #     - Key: Environment
+  #       Value: !Ref Environment
 
   ### Lambda Execution Role ###
   LambdaExecutionRole:
@@ -342,31 +342,31 @@ Resources:
     Properties:
       EmailIdentity: !Ref EmailIdentitySenderEmail
 
-  ### SES Parameters ###
-  SESRecipientParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
-      Type: String
-      Value: !Ref SESIdentityRecipent
-      Tags:
-        Infrastructure: RCW
-        Component: Application
-        Name: RCW-Param
-        Environment: !Ref Environment
-        Description: A parameter made to customize the configurations of the email recipient at launch
+  # ### SES Parameters ###
+  # SESRecipientParameter:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
+  #     Type: String
+  #     Value: !Ref SESIdentityRecipent
+  #     Tags:
+  #       Infrastructure: RCW
+  #       Component: Application
+  #       Name: RCW-Param
+  #       Environment: !Ref Environment
+  #       Description: A parameter made to customize the configurations of the email recipient at launch
 
-  SESIdentitySenderParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
-      Type: String
-      Value: !Ref SESIdentitySender
-      Tags:
-        Infrastructure: RCW
-        Component: Application
-        Name: RCW-Param
-        Environment: !Ref Environment
+  # SESIdentitySenderParameter:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+  #     Type: String
+  #     Value: !Ref SESIdentitySender
+  #     Tags:
+  #       Infrastructure: RCW
+  #       Component: Application
+  #       Name: RCW-Param
+  #       Environment: !Ref Environment
 
   ### Paypal Parameters ###
   PaypalClientIdParameter:
@@ -430,7 +430,7 @@ Resources:
   AmplifyBranch:
     Type: AWS::Amplify::Branch
     Properties:
-      AppId: !Ref AmplifyApp
+      AppId: !GetAtt AmplifyApp.AppId
       BranchName: !Ref Branch
 
   # AmplifyDomain:
