@@ -331,16 +331,16 @@ Resources:
         Name: RCW-PublicBackendAPI
         Environment: !Ref Environment
 
-  ### SES Identities ###
-  SESIdentityRecipent:
-    Type: AWS::SES::EmailIdentity
-    Properties:
-      EmailIdentity: !Ref EmailIdentityRecipientEmail
+  # ### SES Identities ###
+  # SESIdentityRecipent:
+  #   Type: AWS::SES::EmailIdentity
+  #   Properties:
+  #     EmailIdentity: !Ref EmailIdentityRecipientEmail
   
-  SESIdentitySender:
-    Type: AWS::SES::EmailIdentity
-    Properties:
-      EmailIdentity: !Ref EmailIdentitySenderEmail
+  # SESIdentitySender:
+  #   Type: AWS::SES::EmailIdentity
+  #   Properties:
+  #     EmailIdentity: !Ref EmailIdentitySenderEmail
 
   # ### SES Parameters ###
   # SESRecipientParameter:
