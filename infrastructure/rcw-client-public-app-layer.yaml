@@ -404,8 +404,6 @@ Resources:
           Value: !Ref Environment
         - Name: API_LINK
           Value: !Sub "https://${ClientPublicBackendApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
-      Branches:
-        - BranchName: !Ref Branch
       CustomRules:
         - Source: "</*>" 
           Target: "/index.html"
@@ -434,15 +432,12 @@ Resources:
     Properties:
       AppId: !Ref AmplifyApp
       BranchName: !Ref Branch
-      EnvironmentVariables:
-        - Name: ENVIRONMENT
-          Value: !Ref Environment
 
-  AmplifyDomain:
-    Type: AWS::Amplify::Domain
-    Properties:
-      AppId: !Ref AmplifyApp
-      DomainName: !Ref DomainName
+  # AmplifyDomain:
+  #   Type: AWS::Amplify::Domain
+  #   Properties:
+  #     AppId: !Ref AmplifyApp
+  #     DomainName: !Ref DomainName
 
 Outputs:
   LogBucketName:
