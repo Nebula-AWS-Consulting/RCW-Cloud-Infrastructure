@@ -233,7 +233,7 @@ Resources:
     Properties:
       UserName: !Sub "AdminUser-${Environment}"
       Groups:
-        - !Ref AdminGroup
+        - !Ref AdminGroupDif
       Tags:
         - Key: Environment
           Value: !Ref Environment
@@ -246,7 +246,7 @@ Resources:
 
   ### IAM Groups and Policies ###
 
-  AdminGroup:
+  AdminGroupDif:
     Type: AWS::IAM::Group
     Properties:
       GroupName: !Sub "AdminGroup-${Environment}"
