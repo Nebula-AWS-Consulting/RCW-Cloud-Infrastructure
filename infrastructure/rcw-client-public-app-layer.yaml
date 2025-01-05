@@ -398,6 +398,7 @@ Resources:
     Properties:
       Name: !Sub "RCW-PublicApp-${Environment}"
       Repository: !Ref Repository
+      OauthToken: !Ref OauthToken
       EnvironmentVariables:
         - Name: ENVIRONMENT
           Value: !Ref Environment
