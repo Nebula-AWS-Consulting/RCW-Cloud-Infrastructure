@@ -74,10 +74,14 @@ Resources:
                   - "ssm:GetParameter"
                 Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-paypal-processor-gcp-service-account"
       Tags:
-        Infrastructure: RCW
-        Component: Application
-        Name: !Sub "RCW-PayPalProcessorLambdaExecutionRole-${Environment}"
-        Environment: !Ref Environment
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Application
+        - Key: Name
+          Value: RCW-PayPalProcessorRole
+        - Key: Environment
+          Value: !Ref Environment
 
   PayPalProcessorFunctionLayer:
     Type: AWS::Serverless::LayerVersion
