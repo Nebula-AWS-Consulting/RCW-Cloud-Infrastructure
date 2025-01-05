@@ -160,7 +160,7 @@ Resources:
         - Key: Component
           Value: Security
         - Key: Name
-          Value: RCW-PublicRouteTable
+          Value: RCW-UserPool
         - Key: Environment
           Value: !Ref Environment
 
@@ -188,7 +188,7 @@ Resources:
         - Key: Component
           Value: Security
         - Key: Name
-          Value: RCW-PublicRouteTable
+          Value: RCW-UserPoolClient
         - Key: Environment
           Value: !Ref Environment
 
@@ -260,7 +260,7 @@ Resources:
         - Key: Component
           Value: Security
         - Key: Name
-          Value: RCW-PublicRouteTable
+          Value: RCW-AdminGroup
         - Key: Environment
           Value: !Ref Environment
 
