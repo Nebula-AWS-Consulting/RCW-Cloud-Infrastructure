@@ -111,6 +111,7 @@ Resources:
         Component: Application
         Name: RCW-PayPalProcessorFunction
         Environment: !Ref Environment
+        Description: Lambda function for PayPal Processor which receives the webhook from PayPal and uploads donation data to data storage
 
 Outputs:
   PayPalProcessorLambdaFunctionArn:

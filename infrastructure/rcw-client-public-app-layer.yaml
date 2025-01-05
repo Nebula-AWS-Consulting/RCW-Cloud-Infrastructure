@@ -354,6 +354,7 @@ Resources:
         Component: Application
         Name: RCW-Param
         Environment: !Ref Environment
+        Description: A parameter made to customize the configurations of the email recipient at launch
 
   SESIdentitySenderParameter:
     Type: AWS::SSM::Parameter

@@ -30,6 +30,12 @@ Resources:
           Projection:
             ProjectionType: ALL
       Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Database
+        - Key: Name
+          Value: RCW-AdminTable
         - Key: Environment
           Value: !Ref Environment
 
@@ -70,6 +76,12 @@ Resources:
           Projection:
             ProjectionType: ALL
       Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Database
+        - Key: Name
+          Value: RCW-SubscriptionsAndPaymentsTable
         - Key: Environment
           Value: !Ref Environment
 

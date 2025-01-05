@@ -42,6 +42,8 @@ Resources:
           Value: RCW-VPC
         - Key: Environment
           Value: !Ref Environment
+        - Key: Description
+          Value: VPC for RCW Infrastructure which will host a multitude of applications for operations of the RCW Movement
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
