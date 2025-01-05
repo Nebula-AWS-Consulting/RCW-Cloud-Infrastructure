@@ -440,9 +440,9 @@ Resources:
   #     DomainName: !Ref DomainName
 
 Outputs:
-  LogBucketName:
-    Value: !Ref LogBucket
-    Description: "S3 Bucket for logs"
+  # LogBucketName:
+  #   Value: !Ref LogBucket
+  #   Description: "S3 Bucket for logs"
 
   ClientPublicBackendLambdaFunctionArn:
     Value: !GetAtt ClientPublicBackendFunction.Arn
