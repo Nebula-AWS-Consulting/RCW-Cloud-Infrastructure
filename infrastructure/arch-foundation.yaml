@@ -228,7 +228,7 @@ Resources:
 
   ### IAM Users ###
 
-  AdminUser:
+  AdminUserDif:
     Type: AWS::IAM::User
     Properties:
       UserName: !Sub "AdminUser-${Environment}"
