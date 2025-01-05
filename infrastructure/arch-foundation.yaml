@@ -154,15 +154,6 @@ Resources:
           AttributeDataType: String
           Mutable: true
           Required: false
-      Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Security
-        - Key: Name
-          Value: RCW-UserPool
-        - Key: Environment
-          Value: !Ref Environment
 
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -182,15 +173,6 @@ Resources:
       ExplicitAuthFlows:
         - ADMIN_NO_SRP_AUTH
         - USER_PASSWORD_AUTH
-      Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Security
-        - Key: Name
-          Value: RCW-UserPoolClient
-        - Key: Environment
-          Value: !Ref Environment
 
   ### AWS WAF ###
 
@@ -254,15 +236,6 @@ Resources:
       GroupName: !Sub "AdminGroup-${Environment}"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
-      Tags:
-        - Key: Infrastructure
-          Value: RCW
-        - Key: Component
-          Value: Security
-        - Key: Name
-          Value: RCW-AdminGroup
-        - Key: Environment
-          Value: !Ref Environment
 
   ### Configuration Set ###
   SESConfigurationSet:
