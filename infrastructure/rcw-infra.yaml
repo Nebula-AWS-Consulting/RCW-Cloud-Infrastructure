@@ -56,7 +56,7 @@ Resources:
   ClientPublicDBStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Ref FoundationTemplateS3Uri
+      TemplateURL: !Ref ClientPublicDBTemplateS3Uri
       Parameters:
         Environment: !Ref Environment
 
