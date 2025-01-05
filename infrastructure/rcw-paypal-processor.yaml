@@ -25,7 +25,7 @@ Resources:
   PayPalProcessorLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "PayPalProcessorLambdaExecutionRole-${Environment}"
+      RoleName: !Sub "PayPalProcessorRole-${Environment}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
