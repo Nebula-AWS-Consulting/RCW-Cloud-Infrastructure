@@ -233,7 +233,7 @@ Resources:
   AdminGroup:
     Type: AWS::IAM::Group
     Properties:
-      GroupName: !Sub "AdminGroup-${Environment}"
+      GroupName: !Sub "AdmGroup-${Environment}"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
