@@ -8,6 +8,10 @@ Parameters:
     Default: Dev
     Description: Environment name for the VPC
 
+  SpreadSheetId:
+    Type: String
+    Description: Google SpreadSheet Id for the application
+
 Globals:
   Function:
     Runtime: python3.8
