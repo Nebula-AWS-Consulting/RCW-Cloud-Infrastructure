@@ -67,6 +67,7 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         UserPoolId: !GetAtt ArchFoundationStack.Outputs.UserPoolId
+        UserPoolClientId: !GetAtt ArchFoundationStack.Outputs.UserPoolClientId
         SESConfigurationSetName: !GetAtt ArchFoundationStack.Outputs.SESConfigurationSet
         EmailIdentityRecipientEmail: !Ref EmailIdentityRecipientEmail
         EmailIdentitySenderEmail: !Ref EmailIdentitySenderEmail
@@ -86,6 +87,21 @@ Resources:
         SpreadSheetId: !Ref SpreadSheetId
 
 Outputs:
+  RCW-Public-App-URL:
+    Value: !Ref DomainName
+
   ArchFoundationStackId:
     Description: Stack ID of the foundational resources.
     Value: !Ref ArchFoundationStack
+
+  ClientPublicDBStackId:
+    Description: Stack ID of the Database stack resources.
+    Value: !Ref ClientPublicDBStck
+
+  ClientPublicAppStackId:
+    Description: Stack ID of the App resources.
+    Value: !Ref ClientPublicAppStack
+
+  PaypalProcessorStackId:
+    Description: Stack ID of the processor resources.
+    Value: !Ref PaypalProcessorStack

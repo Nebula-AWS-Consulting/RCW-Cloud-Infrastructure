@@ -7,10 +7,6 @@ Parameters:
     Type: String
     Default: Dev
     Description: Environment name for the VPC
-  
-  SpreadSheetId:
-    Type: String
-    Description: Google spreadsheet id.
 
 Globals:
   Function:
@@ -62,17 +58,6 @@ Resources:
                 Resource:
                   - "arn:aws:dynamodb:*:*:table/AdminTable"
                   - "arn:aws:dynamodb:*:*:table/SubscriptionsAndPayments"
-
-
-          # SSM Parameter Store Access Policy
-        - PolicyName: SSMParameterAccessPolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ssm:GetParameter"
-                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-paypal-processor-gcp-service-account"
       Tags:
         - Key: Infrastructure
           Value: RCW
@@ -87,7 +72,7 @@ Resources:
     Type: AWS::Serverless::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - python3.8
+        - python3.12
       ContentUri: s3://rcw-code-bucket/paypal-processor/layer.zip
 
   ### Lambda Function for PayPal Processor ###
@@ -97,13 +82,9 @@ Resources:
       FunctionName: !Sub "PayPal-Processor-${Environment}"
       Role: !GetAtt PayPalProcessorLambdaExecutionRole.Arn
       CodeUri: s3://rcw-code-bucket/paypal-processor/paypal-processor.zip
-      Runtime: python3.8
+      Runtime: python3.12
       Layers:
       - !Ref PayPalProcessorFunctionLayer
-      Environment:
-        Variables:
-          SPREADSHEET_ID: 1Jpicnmuuuy7aS__mGb-3sLgED9vxvELrvffrDtOHWjo
-          SERVICE_ACCOUNT_PARAMETER_NAME: rcw-paypal-processor-gcp-service-account
       Events:
         PayPalWebhook:
           Type: Api
