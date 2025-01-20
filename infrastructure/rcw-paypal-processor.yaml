@@ -14,7 +14,7 @@ Parameters:
 
 Globals:
   Function:
-    Runtime: python3.8
+    Runtime: python3.12
     Handler: index.lambda_handler
     Timeout: 30
     Tags:
