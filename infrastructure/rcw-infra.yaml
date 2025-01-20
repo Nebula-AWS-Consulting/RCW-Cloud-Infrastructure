@@ -87,9 +87,6 @@ Resources:
         SpreadSheetId: !Ref SpreadSheetId
 
 Outputs:
-  RCW-Public-App-URL:
-    Value: !Ref DomainName
-
   ArchFoundationStackId:
     Description: Stack ID of the foundational resources.
     Value: !Ref ArchFoundationStack
