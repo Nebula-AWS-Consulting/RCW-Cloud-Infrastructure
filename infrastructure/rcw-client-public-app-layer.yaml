@@ -125,6 +125,22 @@ Resources:
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${EmailIdentityRecipientEmail}"
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${EmailIdentitySenderEmail}"
                   - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${SESConfigurationSetName}"
+         
+         # SSM Parameters Access Policy
+        - PolicyName: SSMAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ssm:GetParameter"
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/USER_POOL_ID"
+                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/CLIENT_ID"
+                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_CLIENT_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_SECRET"
+                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESRecipientParameter"
       Tags:
       - Key: Infrastructure
         Value: RCW
