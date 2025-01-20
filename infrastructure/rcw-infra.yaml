@@ -93,7 +93,7 @@ Outputs:
 
   ClientPublicDBStackId:
     Description: Stack ID of the Database stack resources.
-    Value: !Ref ClientPublicDBStck
+    Value: !Ref ClientPublicDBStack
 
   ClientPublicAppStackId:
     Description: Stack ID of the App resources.
