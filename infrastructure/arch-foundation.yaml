@@ -263,12 +263,7 @@ Resources:
               DefaultDimensionValue: Default
 
   ### Output Values ###
-
 Outputs:
-  VpcId:
-    Description: VPC ID
-    Value: !Ref VPC
-
   UserPoolId:
     Description: Cognito User Pool ID
     Value: !Ref UserPool
@@ -276,10 +271,6 @@ Outputs:
   UserPoolClientId:
     Description: Cognito User Pool ID
     Value: !Ref UserPoolClient
-
-  WebACLArn:
-    Description: WAF Web ACL ARN
-    Value: !GetAtt WebACL.Arn
 
   SESConfigurationSet:
     Description: SES Configuration Set Name

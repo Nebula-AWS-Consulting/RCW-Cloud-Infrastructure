@@ -32,6 +32,10 @@ Parameters:
     Type: String
     Description: User pool id for Cognito
   
+  UserPoolClientId:
+    Type: String
+    Description: User pool id for Cognito
+  
   Repository:
     Type: String
     Description: URL of the Git repository (e.g., https://github.com/user/repo)
@@ -140,7 +144,7 @@ Resources:
           S3Bucket: rcw-code-bucket
           S3Key: client-public-backend/dependencies.zip
         CompatibleRuntimes:
-          - python3.8
+          - python3.12
 
   ### Lambda Function for Client Public Backend ###
   ClientPublicBackendFunction:
@@ -149,6 +153,10 @@ Resources:
       FunctionName: !Sub "ClientPublicBackendFunction-${Environment}"
       Role: !GetAtt LambdaExecutionRole.Arn
       CodeUri: s3://rcw-code-bucket/client-public-backend/function.zip
+      Environment:
+        Variables:
+          DOMAIN_NAME: !Ref DomainName
+          ENVIRONMENT: !Ref Environment
       Layers:
         - !Ref ClientPublicBackendLayer
       Events:
@@ -331,42 +339,40 @@ Resources:
         Name: RCW-PublicBackendAPI
         Environment: !Ref Environment
 
-  # ### SES Identities ###
-  # SESIdentityRecipent:
-  #   Type: AWS::SES::EmailIdentity
-  #   Properties:
-  #     EmailIdentity: !Ref EmailIdentityRecipientEmail
-  
-  # SESIdentitySender:
-  #   Type: AWS::SES::EmailIdentity
-  #   Properties:
-  #     EmailIdentity: !Ref EmailIdentitySenderEmail
+  ### SES Identities ###
+  SESIdentityRecipent:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref EmailIdentityRecipientEmail
+  SESIdentitySender:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref EmailIdentitySenderEmail
 
-  # ### SES Parameters ###
-  # SESRecipientParameter:
-  #   Type: AWS::SSM::Parameter
-  #   Properties:
-  #     Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
-  #     Type: String
-  #     Value: !Ref SESIdentityRecipent
-  #     Tags:
-  #       Infrastructure: RCW
-  #       Component: Application
-  #       Name: RCW-Param
-  #       Environment: !Ref Environment
-  #       Description: A parameter made to customize the configurations of the email recipient at launch
-
-  # SESIdentitySenderParameter:
-  #   Type: AWS::SSM::Parameter
-  #   Properties:
-  #     Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
-  #     Type: String
-  #     Value: !Ref SESIdentitySender
-  #     Tags:
-  #       Infrastructure: RCW
-  #       Component: Application
-  #       Name: RCW-Param
-  #       Environment: !Ref Environment
+  ### SES Parameters ###
+  SESRecipientParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
+      Type: String
+      Value: !Ref SESIdentityRecipent
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+        Description: A parameter made to customize the configurations of the email recipient at launc
+  SESIdentitySenderParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+      Type: String
+      Value: !Ref SESIdentitySender
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
 
   ### Paypal Parameters ###
   PaypalClientIdParameter:
@@ -393,6 +399,32 @@ Resources:
         Name: RCW-Param
         Environment: !Ref Environment
 
+  ### Cognito Parameters ###
+  CognitoUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/COGNITO_USER_POOL_ID"
+      Type: String
+      Value: !Ref UserPoolId
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  CognitoUserPoolClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/COGNITO_USER_POOL_CLIENT_ID"
+      Type: String
+      Value: !Ref UserPoolClientId
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  ### FrontEnd AmplifyApp
   AmplifyApp:
     Type: AWS::Amplify::App
     Properties:
