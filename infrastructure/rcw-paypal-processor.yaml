@@ -60,8 +60,8 @@ Resources:
                   - "dynamodb:Scan"
                   - "dynamodb:Query"
                 Resource:
-                  - "arn:aws:dynamodb:*:*:table/AdminTable"
-                  - "arn:aws:dynamodb:*:*:table/SubscriptionsAndPayments"
+                  - !Sub "arn:aws:dynamodb:*:*:table/AdminTable-${Environment}"
+                  - !Sub "arn:aws:dynamodb:*:*:table/SubscriptionsAndPayments-${Environment}"
       Tags:
         - Key: Infrastructure
           Value: RCW
