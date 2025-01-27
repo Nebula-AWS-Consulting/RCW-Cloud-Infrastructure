@@ -431,7 +431,7 @@ Resources:
   CognitoUserPoolClientIdParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub "/rcw-client-backend-${Environment}/COGNITO_USER_POOL_CLIENT_ID"
+      Name: !Sub "/rcw-client-backend-${Environment}/COGNITO_CLIENT_ID"
       Type: String
       Value: !Ref UserPoolClientId
       Tags:
