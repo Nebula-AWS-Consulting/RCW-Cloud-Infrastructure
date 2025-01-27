@@ -136,11 +136,11 @@ Resources:
                   - "ssm:GetParameter"
                 Resource:
                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/COGNITO_USER_POOL_ID"
-                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/COGNITO_CLIENT_ID"
-                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_CLIENT_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/COGNITO_CLIENT_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_CLIENT_ID"
                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_SECRET"
-                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
-                  - !Sub "arn:aws:smm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESRecipientParameter"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESRecipientParameter"
       Tags:
       - Key: Infrastructure
         Value: RCW
