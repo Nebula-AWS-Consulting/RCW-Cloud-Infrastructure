@@ -85,6 +85,7 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         SpreadSheetId: !Ref SpreadSheetId
+        TableName: !GetAtt ClientPublicDBStack.Outputs.SubscriptionsAndPaymentsTableName
 
 Outputs:
   ArchFoundationStackId:
