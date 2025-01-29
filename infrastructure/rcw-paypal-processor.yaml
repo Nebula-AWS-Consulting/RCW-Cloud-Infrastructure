@@ -12,6 +12,10 @@ Parameters:
     Type: String
     Description: Google SpreadSheet Id for the application
 
+  TableName:
+    Type: String
+    Description: Table name for the application
+
 Globals:
   Function:
     Runtime: python3.12
@@ -60,8 +64,8 @@ Resources:
                   - "dynamodb:Scan"
                   - "dynamodb:Query"
                 Resource:
-                  - "arn:aws:dynamodb:*:*:table/AdminTable"
-                  - "arn:aws:dynamodb:*:*:table/SubscriptionsAndPayments"
+                  - !Sub "arn:aws:dynamodb:*:*:table/AdminTable-${Environment}"
+                  - !Sub "arn:aws:dynamodb:*:*:table/SubscriptionsAndPayments-${Environment}"
       Tags:
         - Key: Infrastructure
           Value: RCW
@@ -86,6 +90,9 @@ Resources:
       FunctionName: !Sub "PayPal-Processor-${Environment}"
       Role: !GetAtt PayPalProcessorLambdaExecutionRole.Arn
       CodeUri: s3://rcw-code-bucket/paypal-processor/paypal-processor.zip
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
       Runtime: python3.12
       Layers:
       - !Ref PayPalProcessorFunctionLayer
