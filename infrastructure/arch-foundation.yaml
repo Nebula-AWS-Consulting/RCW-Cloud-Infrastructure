@@ -136,8 +136,6 @@ Resources:
         AllowAdminCreateUserOnly: false
       UsernameAttributes:
         - email
-      AutoVerifiedAttributes:
-        - email
       Policies:
         PasswordPolicy:
           MinimumLength: 8
