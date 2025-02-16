@@ -75,8 +75,7 @@ Resources:
           Value: RCW-PayPalProcessorRole
         - Key: Environment
           Value: !Ref Environment
-        - Key: Description
-          Value: Role for PayPal Processor Lambda Function
+
 
   PayPalProcessorFunctionLayer:
     Type: AWS::Serverless::LayerVersion
