@@ -30,16 +30,34 @@ jobs:
         id: changes
         run: |
           echo "Detecting file changes..."
-          git fetch origin ${{ github.ref_name }} || true  # Ensure the branch is fully updated
-          git diff --name-only HEAD~1 > changes_detected.txt
-          cat changes_detected.txt | grep 'infrastructure/' > filtered_changes.txt || echo "no-changes" > filtered_changes.txt
+          # Ensure the branch is fully updated
+          git fetch origin ${{ github.ref_name }} || true
+
+          # Determine whether the commit is a merge commit (more than one parent)
+          parent_count=$(git rev-list --parents -n 1 HEAD | wc -w)
+          echo "Number of parents for HEAD: $parent_count"
+          
+          if [ "$parent_count" -gt 2 ]; then
+            echo "Merge commit detected, using HEAD^2 for diff."
+            git diff --name-only HEAD^2 HEAD > changes_detected.txt
+          else
+            echo "Non-merge commit detected, using HEAD~1 for diff."
+            git diff --name-only HEAD~1 > changes_detected.txt
+          fi
+
+          echo "Full list of changed files:"
+          cat changes_detected.txt
+
+          # Filter for changes in the infrastructure directory
+          grep 'infrastructure/' changes_detected.txt > filtered_changes.txt || echo "no-changes" > filtered_changes.txt
+          echo "Filtered list of changed files:"
           cat filtered_changes.txt
 
           if grep -q "no-changes" filtered_changes.txt; then
-            echo "No changes detected in templates. Skipping deployment."
+            echo "No changes detected in infrastructure templates. Skipping deployment."
             echo "should_run=false" >> $GITHUB_ENV
           else
-            echo "Changes detected in templates. Proceeding with deployment."
+            echo "Changes detected in infrastructure templates. Proceeding with deployment."
             echo "should_run=true" >> $GITHUB_ENV
           fi
 
@@ -54,7 +72,7 @@ jobs:
           fi
 
           while read file; do
-            if [[ $file == no-changes ]]; then
+            if [[ $file == "no-changes" ]]; then
               echo "No changes detected. Skipping upload."
               exit 0
             fi
