@@ -6,6 +6,24 @@ Parameters:
     Type: String
     Default: Dev
     Description: Environment name for the VPC
+  EmailIdentityRecipientParameter:
+    Type: String
+    Default: default-recipient@example.com
+    Description: Email address to be used for SES identity recipient
+  EmailIdentitySenderParameter:
+    Type: String
+    Default: default-sender@example.com
+    Description: Email address to be used for SES identity sender
+  PaypalSecret:
+    Type: String
+    Description: Paypal secret
+  PayPalClientId:
+    Type: String
+    Description: Paypal client id
+  ConfigurationSet:
+    Type: String
+    Default: my-first-configuration-set
+    Description: Configuration set name for SES
 Globals:
   Function:
     Runtime: python3.8
@@ -15,10 +33,25 @@ Globals:
       Environment:
         Ref: Environment
 Resources:
-  PayPalProcessorLambdaExecutionRole:
+  LogBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: rcw-log-bucket
+      AccessControl: Private
+      Tags:
+      - Key: Infrastructure
+        Value: RCW
+      - Key: Component
+        Value: Storage
+      - Key: Name
+        Value: RCW-LogBucket
+      - Key: Environment
+        Value:
+          Ref: Environment
+  LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: PayPalProcessorLambdaExecutionRole
+      RoleName: LambdaExecutionRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -37,70 +70,341 @@ Resources:
             - logs:CreateLogStream
             - logs:PutLogEvents
             Resource: '*'
-      - PolicyName: DynamoDBAccessPolicy
+      - PolicyName: CognitoAccessPolicy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
           - Effect: Allow
             Action:
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
-            - dynamodb:Scan
-            - dynamodb:Query
-            Resource: arn:aws:dynamodb:*:*:table/AdminTable
-      - PolicyName: SSMParameterAccessPolicy
+            - cognito-idp:*
+            Resource: arn:aws:cognito-idp:*:*:userpool/us-west-1_lJ8JcxPXT
+      - PolicyName: SESAccessPolicy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
           - Effect: Allow
             Action:
-            - ssm:GetParameter
+            - ses:SendEmail
+            - ses:SendRawEmail
             Resource:
-              Fn::Sub: arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-paypal-processor-gcp-service-account
+            - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*
+            - Fn::Sub: arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${ConfigurationSet}
       Tags:
+      - Key: Infrastructure
+        Value: RCW
+      - Key: Component
+        Value: Security
+      - Key: Name
+        Value: RCW-PublicBackendExecutionRole
       - Key: Environment
         Value:
           Ref: Environment
-  PayPalProcessorFunctionLayer:
-    Type: AWS::Serverless::LayerVersion
+  ClientPublicBackendLayer:
+    Type: AWS::Lambda::LayerVersion
     Properties:
+      LayerName: ClientPublicBackendLayer
+      Description: Layer for Lambda dependencies
+      Content:
+        S3Bucket: rcw-code-bucket
+        S3Key: client-public-backend/dependencies.zip
       CompatibleRuntimes:
       - python3.8
-      ContentUri: s3://rcw-code-bucket/paypal-processor/layer.zip
-  PayPalProcessorFunction:
+  ClientPublicBackendFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: PayPal-Processor
+      FunctionName: ClientPublicBackendFunction
       Role:
         Fn::GetAtt:
-        - PayPalProcessorLambdaExecutionRole
+        - LambdaExecutionRole
         - Arn
-      CodeUri: s3://rcw-code-bucket/paypal-processor/paypal-processor.zip
-      Runtime: python3.8
+      CodeUri: s3://rcw-code-bucket/client-public-backend/function.zip
       Layers:
-      - Ref: PayPalProcessorFunctionLayer
-      Tags:
-        Environment:
-          Ref: Environment
-      Environment:
-        Variables:
-          SPREADSHEET_ID: 1Jpicnmuuuy7aS__mGb-3sLgED9vxvELrvffrDtOHWjo
-          SERVICE_ACCOUNT_PARAMETER_NAME: rcw-paypal-processor-gcp-service-account
+      - Ref: ClientPublicBackendLayer
       Events:
-        PayPalWebhook:
+        SignupPost:
           Type: Api
           Properties:
-            Path: /paypal-webhook
+            Path: /signup
             Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        SignupOptions:
+          Type: Api
+          Properties:
+            Path: /signup
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmUser:
+          Type: Api
+          Properties:
+            Path: /confirm
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmUserOptions:
+          Type: Api
+          Properties:
+            Path: /confirm
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmEmail:
+          Type: Api
+          Properties:
+            Path: /confirm-email
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmEmailOptions:
+          Type: Api
+          Properties:
+            Path: /confirm-email
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmEmailResend:
+          Type: Api
+          Properties:
+            Path: /confirm-email-resend
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmEmailResendOptions:
+          Type: Api
+          Properties:
+            Path: /confirm-email-resend
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        LoginUser:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        LoginUserOptions:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ForgotPassword:
+          Type: Api
+          Properties:
+            Path: /forgot-password
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ForgotPasswordOptions:
+          Type: Api
+          Properties:
+            Path: /forgot-password
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmForgotPassword:
+          Type: Api
+          Properties:
+            Path: /confirm-forgot-password
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ConfirmForgotPasswordOptions:
+          Type: Api
+          Properties:
+            Path: /confirm-forgot-password
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ContactUs:
+          Type: Api
+          Properties:
+            Path: /contact-us
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        ContactUsOptions:
+          Type: Api
+          Properties:
+            Path: /contact-us
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: GET
+            RestApiId:
+              Ref: ClientPublicBackendApi
+            RequestParameters:
+              method.request.querystring.email: true
+        UpdateUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: PATCH
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        DeleteUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: DELETE
+            RestApiId:
+              Ref: ClientPublicBackendApi
+            RequestParameters:
+              method.request.querystring.email: true
+        UsersOptions:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateOrder:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateOrderOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateSubscription:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
+            Method: POST
+            RestApiId:
+              Ref: ClientPublicBackendApi
+        PayPalCreateSubscriptionOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
+            Method: OPTIONS
+            RestApiId:
+              Ref: ClientPublicBackendApi
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendFunction
+        Environment:
+          Ref: Environment
+  ClientPublicBackendApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: ClientPublicBackendApi
+      StageName: prod
+      EndpointConfiguration:
+        Type: REGIONAL
+      Cors:
+        AllowMethods:
+        - GET
+        - POST
+        - PATCH
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+        - Authorization
+        AllowOrigin: '*'
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendAPI
+        Environment:
+          Ref: Environment
+  SESIdentityRecipent:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity:
+        Ref: EmailIdentityRecipientParameter
+  SESIdentitySender:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity:
+        Ref: EmailIdentitySenderParameter
+  SESRecipientParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/SESRecipientParameter
+      Type: String
+      Value:
+        Ref: SESIdentityRecipent
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment:
+          Ref: Environment
+  SESIdentitySenderParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/SESIdentitySenderParameter
+      Type: String
+      Value:
+        Ref: SESIdentitySender
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment:
+          Ref: Environment
+  PaypalClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/PAYPAL_CLIENT_ID
+      Type: String
+      Value:
+        Ref: PayPalClientId
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment:
+          Ref: Environment
+  PaypalSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /rcw-client-backend/PAYPAL_SECRET
+      Type: String
+      Value:
+        Ref: PaypalSecret
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment:
+          Ref: Environment
 Outputs:
-  PayPalProcessorLambdaFunctionArn:
+  LogBucketName:
+    Value:
+      Ref: LogBucket
+    Description: S3 Bucket for logs
+  ClientPublicBackendLambdaFunctionArn:
     Value:
       Fn::GetAtt:
-      - PayPalProcessorFunction
+      - ClientPublicBackendFunction
       - Arn
-    Description: Lambda function ARN for PayPal Processor
-  ApiEndpoint:
+    Description: Lambda function ARN for Client Public Backend
+  ClientPublicBackendApiInvokeURL:
     Value:
-      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/paypal-webhook
+      Fn::Sub: https://${ClientPublicBackendApi}.execute-api.${AWS::Region}.amazonaws.com/prod
+    Description: Invoke URL for the Client Public Backend API
+  PaypalClientIdParameterValue:
+    Value:
+      Ref: PaypalClientIdParameter
+    Description: Paypal Client ID Parameter
+  PaypalSecretParameterValue:
+    Value:
+      Ref: PaypalSecretParameter
+    Description: Paypal Secret Parameter

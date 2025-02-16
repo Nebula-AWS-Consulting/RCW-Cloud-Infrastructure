@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DynamoDB Tables for Admin Data and Subscriptions/Payments
+
+Parameters:
+  Environment:
+    Type: String
+    Default: Dev
+    Description: Environment name for the VPC
+
+Resources:
+  ### DynamoDB Table for Admin Data ###
+  AdminTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "AdminTable-${Environment}"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S  # For GSI
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Database
+        - Key: Name
+          Value: RCW-AdminTable
+        - Key: Environment
+          Value: !Ref Environment
+
+  ### DynamoDB Table for Subscriptions and Payments ###
+  SubscriptionsAndPaymentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "SubscriptionsAndPayments-${Environment}"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: data_type
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S  # For GSI
+        - AttributeName: email
+          AttributeType: S  # Optional attribute for user email
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: data_type
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: UserIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      LocalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: id
+              KeyType: HASH
+            - AttributeName: email
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Database
+        - Key: Name
+          Value: RCW-SubscriptionsAndPaymentsTable
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  AdminTableName:
+    Value: !Ref AdminTable
+    Description: "DynamoDB Table for admin data"
+
+  SubscriptionsAndPaymentsTableName:
+    Value: !Ref SubscriptionsAndPaymentsTable
+    Description: "DynamoDB Table for subscriptions and payments"

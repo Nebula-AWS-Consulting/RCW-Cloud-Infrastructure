@@ -42,6 +42,8 @@ Resources:
           Value: RCW-VPC
         - Key: Environment
           Value: !Ref Environment
+        - Key: Description
+          Value: VPC for RCW Infrastructure which will host a multitude of applications for operations of the RCW Movement
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -129,12 +131,10 @@ Resources:
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: RCW-UserPool
+      UserPoolName: !Sub "RCW-UserPool-${Environment}"
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
       UsernameAttributes:
-        - email
-      AutoVerifiedAttributes:
         - email
       Policies:
         PasswordPolicy:
@@ -156,7 +156,7 @@ Resources:
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: RCW-UserPoolClient
+      ClientName: !Sub "RCW-UserPoolClient-${Environment}"
       UserPoolId: !Ref UserPool
       GenerateSecret: false
       AllowedOAuthFlows:
@@ -177,7 +177,7 @@ Resources:
   WebACL:
     Type: AWS::WAFv2::WebACL
     Properties:
-      Name: RCW-WebACL
+      Name: !Sub "RCW-WebACL-${Environment}"
       Scope: REGIONAL
       DefaultAction:
         Allow: {}
@@ -198,26 +198,22 @@ Resources:
             ManagedRuleGroupStatement:
               VendorName: AWS
               Name: AWSManagedRulesCommonRuleSet
-
-  CodeCommitRepository:
-    Type: AWS::CodeCommit::Repository
-    Properties:
-      RepositoryName: RCW-Infrastructure-Campaign
-      RepositoryDescription: Repository for the RCW-Website
       Tags:
-        - Key: Environment
-          Value: Development
         - Key: Infrastructure
           Value: RCW
         - Key: Component
-          Value: Code
+          Value: Networking
+        - Key: Name
+          Value: RCW-PublicRouteTable
+        - Key: Environment
+          Value: !Ref Environment
 
   ### IAM Users ###
 
   AdminUser:
     Type: AWS::IAM::User
     Properties:
-      UserName: AdminUser
+      UserName: !Sub "AdminUser-${Environment}"
       Groups:
         - !Ref AdminGroup
       Tags:
@@ -235,17 +231,37 @@ Resources:
   AdminGroup:
     Type: AWS::IAM::Group
     Properties:
-      GroupName: AdminGroup
+      GroupName: !Sub "AdminGroup-${Environment}"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
+  ### Configuration Set ###
+  SESConfigurationSet:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: !Sub "RCW-EmailConfigurationSet-${Environment}"
+
+  ### Event Destination for Configuration Set ###
+  SESConfigurationSetEventDestination:
+    Type: AWS::SES::ConfigurationSetEventDestination
+    Properties:
+      ConfigurationSetName: !Ref SESConfigurationSet
+      EventDestination:
+        Name: RCW-EventDestination
+        Enabled: true
+        MatchingEventTypes:
+          - SEND
+          - DELIVERY
+          - BOUNCE
+          - COMPLAINT
+        CloudWatchDestination:
+          DimensionConfigurations:
+            - DimensionName: EmailType
+              DimensionValueSource: MESSAGE_TAG
+              DefaultDimensionValue: Default
+
   ### Output Values ###
-
 Outputs:
-  VpcId:
-    Description: VPC ID
-    Value: !Ref VPC
-
   UserPoolId:
     Description: Cognito User Pool ID
     Value: !Ref UserPool
@@ -254,6 +270,6 @@ Outputs:
     Description: Cognito User Pool ID
     Value: !Ref UserPoolClient
 
-  WebACLArn:
-    Description: WAF Web ACL ARN
-    Value: !GetAtt WebACL.Arn
+  SESConfigurationSet:
+    Description: SES Configuration Set Name
+    Value: !Ref SESConfigurationSet

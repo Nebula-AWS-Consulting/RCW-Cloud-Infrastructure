@@ -1,0 +1,509 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: S3 Buckets and Lambda Functions for Workload Application using AWS SAM
+
+Parameters:
+  Environment:
+    Type: String
+    Default: Dev
+    Description: Environment name for the VPC
+
+  EmailIdentityRecipientEmail:
+    Type: String
+    Description: Email address to be used for SES identity recipient
+
+  EmailIdentitySenderEmail:
+    Type: String
+    Description: Email address to be used for SES identity sender
+
+  PaypalSecret:
+    Type: String
+    Description: Paypal secret
+  
+  PayPalClientId:
+    Type: String
+    Description: Paypal client id
+
+  SESConfigurationSetName:
+    Type: String
+    Description: Configuration set name for SES
+
+  UserPoolId:
+    Type: String
+    Description: User pool id for Cognito
+  
+  UserPoolClientId:
+    Type: String
+    Description: User pool id for Cognito
+  
+  Repository:
+    Type: String
+    Description: URL of the Git repository (e.g., https://github.com/user/repo)
+  
+  Branch:
+    Type: String
+    Description: Branch to deploy from (e.g., main)
+  
+  OauthToken:
+    Type: String
+    Description: GitHub Personal Access Token
+
+  DomainName:
+    Type: String
+    Description: Domain name for the application
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Handler: index.lambda_handler
+    Timeout: 30
+    Tags:
+      Environment: !Ref Environment
+
+Resources:
+  # ### S3 Bucket for logs (Secured) ###
+  # LogBucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     BucketName: !Sub "rcw-log-bucket-${Environment}"
+  #     AccessControl: Private
+  #     Tags:
+  #     - Key: Infrastructure
+  #       Value: RCW
+  #     - Key: Component
+  #       Value: Storage
+  #     - Key: Name
+  #       Value: RCW-LogBucket
+  #     - Key: Environment
+  #       Value: !Ref Environment
+
+  ### Lambda Execution Role ###
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "LambdaExecutionRole-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        # Basic Lambda logging policy
+        - PolicyName: BasicLambdaExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+        
+        # Cognito User Pool Permissions
+        - PolicyName: CognitoAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "cognito-idp:*"
+                Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
+
+         # SES Access Policy
+        - PolicyName: SESAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ses:SendEmail"
+                  - "ses:SendRawEmail"
+                Resource:
+                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${EmailIdentityRecipientEmail}"
+                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${EmailIdentitySenderEmail}"
+                  - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${SESConfigurationSetName}"
+         
+         # SSM Parameters Access Policy
+        - PolicyName: SSMAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ssm:GetParameter"
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/COGNITO_USER_POOL_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/COGNITO_CLIENT_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_CLIENT_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_SECRET"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESRecipientParameter"
+      Tags:
+      - Key: Infrastructure
+        Value: RCW
+      - Key: Component
+        Value: Security
+      - Key: Name
+        Value: RCW-PublicBackendExecutionRole
+      - Key: Environment
+        Value: !Ref Environment
+
+  ClientPublicBackendLayer:
+      Type: AWS::Lambda::LayerVersion
+      Properties:
+        LayerName: !Sub "ClientPublicBackendLayer-${Environment}"
+        Description: Layer for Lambda dependencies
+        Content:
+          S3Bucket: rcw-code-bucket
+          S3Key: client-public-backend/dependencies.zip
+        CompatibleRuntimes:
+          - python3.12
+
+  ### Lambda Function for Client Public Backend ###
+  ClientPublicBackendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "ClientPublicBackendFunction-${Environment}"
+      Role: !GetAtt LambdaExecutionRole.Arn
+      CodeUri: s3://rcw-code-bucket/client-public-backend/function.zip
+      Environment:
+        Variables:
+          DOMAIN_NAME: !Ref DomainName
+          ENVIRONMENT: !Ref Environment
+      Layers:
+        - !Ref ClientPublicBackendLayer
+      Events:
+        SignupPost:
+          Type: Api
+          Properties:
+            Path: /signup
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        SignupOptions:
+          Type: Api
+          Properties:
+            Path: /signup
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmUser:
+          Type: Api
+          Properties:
+            Path: /confirm
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmUserOptions:
+          Type: Api
+          Properties:
+            Path: /confirm
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmEmail:
+          Type: Api
+          Properties:
+            Path: /confirm-email
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmEmailOptions:
+          Type: Api
+          Properties:
+            Path: /confirm-email
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmEmailResend:
+          Type: Api
+          Properties:
+            Path: /confirm-email-resend
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmEmailResendOptions:
+          Type: Api
+          Properties:
+            Path: /confirm-email-resend
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        LoginUser:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        LoginUserOptions:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        ForgotPassword:
+          Type: Api
+          Properties:
+            Path: /forgot-password
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        ForgotPasswordOptions:
+          Type: Api
+          Properties:
+            Path: /forgot-password
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmForgotPassword:
+          Type: Api
+          Properties:
+            Path: /confirm-forgot-password
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        ConfirmForgotPasswordOptions:
+          Type: Api
+          Properties:
+            Path: /confirm-forgot-password
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        ContactUs:
+          Type: Api
+          Properties:
+            Path: /contact-us
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        ContactUsOptions:
+          Type: Api
+          Properties:
+            Path: /contact-us
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: GET
+            RestApiId: !Ref ClientPublicBackendApi
+            RequestParameters:
+              method.request.querystring.email: true
+        UpdateUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: PATCH
+            RestApiId: !Ref ClientPublicBackendApi
+        DeleteUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: DELETE
+            RestApiId: !Ref ClientPublicBackendApi
+            RequestParameters:
+              method.request.querystring.email: true
+        UsersOptions:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateOrder:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateOrderOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-order
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateSubscription:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
+            Method: POST
+            RestApiId: !Ref ClientPublicBackendApi
+        PayPalCreateSubscriptionOptions:
+          Type: Api
+          Properties:
+            Path: /create-paypal-subscription
+            Method: OPTIONS
+            RestApiId: !Ref ClientPublicBackendApi
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendFunction
+        Environment: !Ref Environment
+
+  ### API Gateway for Client Public Backend ###
+  ClientPublicBackendApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "ClientPublicBackendApi-${Environment}"
+      StageName: prod
+      EndpointConfiguration:
+        Type: REGIONAL
+      Cors:
+        AllowMethods:
+          - GET
+          - POST
+          - PATCH
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowOrigin: '*'
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PublicBackendAPI
+        Environment: !Ref Environment
+
+  ### SES Identities ###
+  SESIdentityRecipent:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref EmailIdentityRecipientEmail
+  SESIdentitySender:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref EmailIdentitySenderEmail
+
+  ### SES Parameters ###
+  SESRecipientParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
+      Type: String
+      Value: !Ref SESIdentityRecipent
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+        Description: A parameter made to customize the configurations of the email recipient at launc
+  SESIdentitySenderParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+      Type: String
+      Value: !Ref SESIdentitySender
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  ### Paypal Parameters ###
+  PaypalClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_CLIENT_ID"
+      Type: String
+      Value: !Ref PayPalClientId
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  PaypalSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_SECRET"
+      Type: String
+      Value: !Ref PaypalSecret
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  ### Cognito Parameters ###
+  CognitoUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/COGNITO_USER_POOL_ID"
+      Type: String
+      Value: !Ref UserPoolId
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  CognitoUserPoolClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/COGNITO_CLIENT_ID"
+      Type: String
+      Value: !Ref UserPoolClientId
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  ### FrontEnd AmplifyApp
+  AmplifyApp:
+    Type: AWS::Amplify::App
+    Properties:
+      Name: !Sub "RCW-PublicApp-${Environment}"
+      Repository: !Ref Repository
+      OauthToken: !Ref OauthToken
+      EnvironmentVariables:
+        - Name: ENVIRONMENT
+          Value: !Ref Environment
+        - Name: API_LINK
+          Value: !Sub "https://${ClientPublicBackendApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+      CustomRules:
+        - Source: "</*>" 
+          Target: "/index.html"
+          Status: "200"
+      BuildSpec: |
+        version: 1
+        frontend:
+            phases:
+                preBuild:
+                    commands:
+                        - cd src/client-frontend
+                        - npm install
+                build:
+                    commands:
+                        - npm run build
+            artifacts:
+                baseDirectory: src/client-frontend/dist
+                files:
+                    - '**/*'
+            cache:
+                paths:
+                    - src/client-frontend/node_modules/**/* 
+
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      AppId: !GetAtt AmplifyApp.AppId
+      BranchName: !Ref Branch
+
+  # AmplifyDomain:
+  #   Type: AWS::Amplify::Domain
+  #   Properties:
+  #     AppId: !Ref AmplifyApp
+  #     DomainName: !Ref DomainName
+
+Outputs:
+  # LogBucketName:
+  #   Value: !Ref LogBucket
+  #   Description: "S3 Bucket for logs"
+
+  ClientPublicBackendLambdaFunctionArn:
+    Value: !GetAtt ClientPublicBackendFunction.Arn
+    Description: "Lambda function ARN for Client Public Backend"
+
+  ClientPublicBackendApiInvokeURL:
+    Value: !Sub "https://${ClientPublicBackendApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Description: "Invoke URL for the Client Public Backend API"
+
+  PaypalClientIdParameterValue:
+    Value: !Ref PaypalClientIdParameter
+    Description: "Paypal Client ID Parameter"
+
+  PaypalSecretParameterValue:
+    Value: !Ref PaypalSecretParameter
+    Description: "Paypal Secret Parameter"

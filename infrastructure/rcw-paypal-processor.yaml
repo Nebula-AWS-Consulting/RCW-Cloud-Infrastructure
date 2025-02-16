@@ -8,9 +8,17 @@ Parameters:
     Default: Dev
     Description: Environment name for the VPC
 
+  SpreadSheetId:
+    Type: String
+    Description: Google SpreadSheet Id for the application
+
+  TableName:
+    Type: String
+    Description: Table name for the application
+
 Globals:
   Function:
-    Runtime: python3.8
+    Runtime: python3.12
     Handler: index.lambda_handler
     Timeout: 30
     Tags:
@@ -21,7 +29,7 @@ Resources:
   PayPalProcessorLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: PayPalProcessorLambdaExecutionRole
+      RoleName: !Sub "PayPalProcessorRole-${Environment}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -55,18 +63,16 @@ Resources:
                   - "dynamodb:DeleteItem"
                   - "dynamodb:Scan"
                   - "dynamodb:Query"
-                Resource: "arn:aws:dynamodb:*:*:table/AdminTable"
-
-          # SSM Parameter Store Access Policy
-        - PolicyName: SSMParameterAccessPolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ssm:GetParameter"
-                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-paypal-processor-gcp-service-account"
+                Resource:
+                  - !Sub "arn:aws:dynamodb:*:*:table/AdminTable-${Environment}"
+                  - !Sub "arn:aws:dynamodb:*:*:table/SubscriptionsAndPayments-${Environment}"
       Tags:
+        - Key: Infrastructure
+          Value: RCW
+        - Key: Component
+          Value: Application
+        - Key: Name
+          Value: RCW-PayPalProcessorRole
         - Key: Environment
           Value: !Ref Environment
 
@@ -74,34 +80,34 @@ Resources:
     Type: AWS::Serverless::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - python3.8
+        - python3.12
       ContentUri: s3://rcw-code-bucket/paypal-processor/layer.zip
 
   ### Lambda Function for PayPal Processor ###
   PayPalProcessorFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: PayPal-Processor
+      FunctionName: !Sub "PayPal-Processor-${Environment}"
       Role: !GetAtt PayPalProcessorLambdaExecutionRole.Arn
       CodeUri: s3://rcw-code-bucket/paypal-processor/paypal-processor.zip
-      Runtime: python3.8
-      Layers:
-      - !Ref PayPalProcessorFunctionLayer
-      Tags:
-        Environment: !Ref Environment
       Environment:
         Variables:
-          SPREADSHEET_ID: 1Jpicnmuuuy7aS__mGb-3sLgED9vxvELrvffrDtOHWjo
-          SERVICE_ACCOUNT_PARAMETER_NAME: rcw-paypal-processor-gcp-service-account
-          PAYPAL_CLIENT_ID: Aba3bU1eiMh9wBoHFFSu1MeJpxYSRGP8IcQSHjjF4GZatexfaEIiE2j6mv30lnebWjSuBymPFLrdHKWu
-          PAYPAL_SECRET: EGJlQw3VuHYY8nWoEbey6yHr-8dOt7Khfk9Bb50Bu1iQWFWRmzgNtrHjZpP5Z4eObwi-fclgZT7mpSNm
-          PAYPAL_WEBHOOK_ID: 7JB041680U348833M
+          TABLE_NAME: !Ref TableName
+      Runtime: python3.12
+      Layers:
+      - !Ref PayPalProcessorFunctionLayer
       Events:
         PayPalWebhook:
           Type: Api
           Properties:
             Path: /paypal-webhook
             Method: POST
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-PayPalProcessorFunction
+        Environment: !Ref Environment
+        Description: Lambda function for PayPal Processor which receives the webhook from PayPal and uploads donation data to data storage
 
 Outputs:
   PayPalProcessorLambdaFunctionArn:
