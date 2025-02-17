@@ -67,6 +67,8 @@ jobs:
               s3_path="templates/rcw-client-public-app.yaml"
             elif [[ $file == infrastructure/rcw-paypal-processor.yaml ]]; then
               s3_path="templates/rcw-paypal-processor.yaml"
+            elif [[ $file == infrastructure/rcw-admin-app.yaml ]]; then
+              s3_path="templates/rcw-admin-app.yaml"
             else
               echo "Unknown file: $file. Skipping."
               continue
