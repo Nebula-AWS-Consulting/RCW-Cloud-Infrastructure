@@ -17,6 +17,9 @@ Parameters:
   PaypalProcessorS3Uri:
     Type: String
     Description: S3 URI of the child template requiring foundation outputs.
+  AdminAppS3Uri:
+    Type: String
+    Description: S3 URI of the child template requiring foundation outputs.
   EmailIdentityRecipientEmail:
     Type: String
     Description: Email address to receive notifications.
@@ -85,6 +88,14 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         SpreadSheetId: !Ref SpreadSheetId
+        TableName: !GetAtt ClientPublicDBStack.Outputs.SubscriptionsAndPaymentsTableName
+
+  AdminAppStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref AdminAppS3Uri
+      Parameters:
+        Environment: !Ref Environment
         TableName: !GetAtt ClientPublicDBStack.Outputs.SubscriptionsAndPaymentsTableName
 
 Outputs:

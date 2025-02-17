@@ -92,6 +92,7 @@ jobs:
               ClientPublicDBTemplateS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/rcw-client-public-db.yaml \
               ClientPublicAppS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/rcw-client-public-app.yaml \
               PaypalProcessorS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/rcw-paypal-processor.yaml \
+              AdminAppS3Uri=https://rcw-code-bucket.s3.us-west-1.amazonaws.com/templates/rcw-admin-app.yaml \
               EmailIdentityRecipientEmail=emmanuelurias60@icloud.com \
               EmailIdentitySenderEmail=emmanuelurias60@nebulaawsconsulting.com \
               PaypalSecret=${{ secrets.PAYPAL_SECRET }} \
