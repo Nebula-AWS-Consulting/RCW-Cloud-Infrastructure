@@ -21,9 +21,10 @@ Globals:
       Environment: !Ref Environment
   Api:
     Cors:
-      AllowOrigin: "*"
-      AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-      AllowHeaders: "Content-Type,Authorization"
+      AllowOrigin: "'*'"
+      AllowMethods: "'GET,POST,PUT,PATCH,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization'"
+
 
 
 Resources:
