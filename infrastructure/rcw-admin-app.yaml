@@ -72,7 +72,7 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
         - Key: Description
-          Value: Role for Admin APp Lambda Function
+          Value: Role for Admin App Lambda Function
 
   AdminAppFunctionLayer:
     Type: AWS::Serverless::LayerVersion
