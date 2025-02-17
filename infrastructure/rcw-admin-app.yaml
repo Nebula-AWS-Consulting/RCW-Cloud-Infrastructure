@@ -19,6 +19,12 @@ Globals:
     Timeout: 30
     Tags:
       Environment: !Ref Environment
+  Api:
+    Cors:
+      AllowOrigin: "*"
+      AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      AllowHeaders: "Content-Type,Authorization"
+
 
 Resources:
   ### Lambda Execution Role ###
@@ -100,26 +106,17 @@ Resources:
           Properties:
             Path: /upload-item
             Method: POST
-            Cors:
-              AllowOrigin: "'*'"
-              AllowMethods: "'POST,OPTIONS'"
-              AllowHeaders: "'Content-Type,Authorization'"
         GetData:
           Type: Api
           Properties:
             Path: /get-data
             Method: GET
-            Cors:
-              AllowOrigin: "'*'"
-              AllowMethods: "'GET,OPTIONS'"
-              AllowHeaders: "'Content-Type,Authorization'"
       Tags:
         Infrastructure: RCW
         Component: Application
         Name: RCW-AdminAppFunction
         Environment: !Ref Environment
         Description: Lambda function for Admin App which receives the webhook from Admin App and uploads donation data to data storage
-
 
 Outputs:
   AdminAppFunctionArn:
