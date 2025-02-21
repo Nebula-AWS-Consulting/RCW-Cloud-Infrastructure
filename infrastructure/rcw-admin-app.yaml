@@ -132,15 +132,25 @@ Resources:
       Layers:
         - !Ref AdminAppFunctionLayer
       Events:
+        SignUp:
+          Type: Api
+          Properties:
+            Path: /signup
+            Method: POST
+        SignIn:
+          Type: Api
+          Properties:
+            Path: /signin
+            Method: POST
         UploadItem:
           Type: Api
           Properties:
-            Path: /upload-item
+            Path: /upload-cash-transaction
             Method: POST
         GetData:
           Type: Api
           Properties:
-            Path: /get-data
+            Path: /get-db-items
             Method: GET
       Tags:
         Infrastructure: RCW
