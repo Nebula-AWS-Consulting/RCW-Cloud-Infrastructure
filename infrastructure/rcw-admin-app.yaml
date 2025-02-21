@@ -12,6 +12,10 @@ Parameters:
     Type: String
     Description: Table name for the application
 
+  UserPoolId:
+    Type: String
+    Description: User pool id for Cognito
+
 Globals:
   Function:
     Runtime: python3.12
@@ -52,6 +56,32 @@ Resources:
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                 Resource: "*"
+
+        # Cognito User Pool Permissions
+        - PolicyName: CognitoAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "cognito-idp:*"
+                Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
+
+        # SSM Parameters Access Policy
+        - PolicyName: SSMAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ssm:GetParameter"
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/COGNITO_USER_POOL_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/COGNITO_CLIENT_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_CLIENT_ID"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/PAYPAL_SECRET"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rcw-client-backend-${Environment}/SESRecipientParameter"
 
         # DynamoDB Access Policy (optional if you still use DynamoDB)
         - PolicyName: DynamoDBAccessPolicy

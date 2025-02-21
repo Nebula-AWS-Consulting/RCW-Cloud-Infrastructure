@@ -97,6 +97,7 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         TableName: !GetAtt ClientPublicDBStack.Outputs.SubscriptionsAndPaymentsTableName
+        UserPoolId: !GetAtt ArchFoundationStack.Outputs.UserPoolId
 
 Outputs:
   ArchFoundationStackId:
