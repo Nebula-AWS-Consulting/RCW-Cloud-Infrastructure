@@ -101,4 +101,9 @@ jobs:
               Repository=https://github.com/Nebula-AWS-Consulting/RCW-Infrastructure-Campaign \
               Branch=main \
               OauthToken=${{ secrets.OAUTH_TOKEN }} \
-              DomainName=restoredchurchlv.org
+              DomainName=restoredchurchlv.org \
+              PaypalAuthTokenLink=https://api-m.sandbox.paypal.com/v1/oauth2/token \
+              PaypalCheckoutOrderLink=https://api-m.sandbox.paypal.com/v2/checkout/orders \
+              PaypalCatalogueProductLink:https://api-m.sandbox.paypal.com/v1/catalogs/products \
+              PaypalBillingPlansLink=https://api-m.sandbox.paypal.com/v1/billing/plans \
+              PaypalBillingSubscriptionLink=https://api-m.sandbox.paypal.com/v1/billing/subscriptions

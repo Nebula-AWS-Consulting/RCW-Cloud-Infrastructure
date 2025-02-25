@@ -52,6 +52,26 @@ Parameters:
     Type: String
     Description: Domain name for the application
 
+  PaypalAuthTokenLink: 
+    Type: String
+    Description: Link to Paypal documentation for authentication token
+
+  PaypalCheckoutOrderLink:
+    Type: String
+    Description: Link to Paypal documentation for secret
+
+  PaypalCatalogueProductLink:
+    Type: String
+    Description: Link to Paypal documentation for client id
+
+  PaypalBillingPlansLink:
+    Type: String
+    Description: Link to Paypal documentation for secret
+
+  PaypalBillingSubscriptionLink:
+    Type: String
+    Description: Link to Paypal documentation for client id
+
 Globals:
   Function:
     Runtime: python3.12
@@ -409,6 +429,42 @@ Resources:
       Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_SECRET"
       Type: String
       Value: !Ref PaypalSecret
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  PaypalAuthTokenLinkParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_AUTH_TOKEN_LINK"
+      Type: String
+      Value: !Ref PaypalAuthTokenLink
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  PaypalCheckoutOrderLinkParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_CHECKOUT_ORDER_LINK"
+      Type: String
+      Value: !Ref PaypalCheckoutOrderLink
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  PaypalCatalogueProductLinkParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_CATALOGUE_PRODUCT_LINK"
+      Type: String
+      Value: !Ref PaypalCatalogueProductLink
       Tags:
         Infrastructure: RCW
         Component: Application

@@ -47,6 +47,21 @@ Parameters:
   DomainName:
     Type: String
     Description: Domain name for the application
+  PaypalAuthTokenLink:
+    Type: String
+    Description: URL to retrieve the paypal auth token
+  PaypalCheckoutOrderLink:
+    Type: String
+    Description: URL to retrieve the paypal checkout order
+  PaypalCatalogueProductLink:
+    Type: String
+    Description: URL to retrieve the paypal catalogue product
+  PaypalBillingPlansLink:
+    Type: String
+    Description: URL to retrieve the paypal billing plans
+  PaypalBillingSubscriptionLink:
+    Type: String
+    Description: URL to retrieve the paypal billing subscription
 
 Resources:
   ArchFoundationStack:
@@ -80,6 +95,11 @@ Resources:
         Branch: !Ref Branch
         OauthToken: !Ref OauthToken
         DomainName: !Ref DomainName
+        PaypalAuthTokenLink: !Ref PaypalAuthTokenLink
+        PaypalCheckoutOrderLink: !Ref PaypalCheckoutOrderLink
+        PaypalCatalogueProductLink: !Ref PaypalCatalogueProductLink
+        PaypalBillingPlansLink: !Ref PaypalBillingPlansLink
+        PaypalBillingSubscriptionLink: !Ref PaypalBillingSubscriptionLink
 
   PaypalProcessorStack:
     Type: AWS::CloudFormation::Stack
