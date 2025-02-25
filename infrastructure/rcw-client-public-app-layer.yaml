@@ -471,6 +471,30 @@ Resources:
         Name: RCW-Param
         Environment: !Ref Environment
 
+  PaypalBillingPlansLinkParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_BILLING_PLANS_LINK"
+      Type: String
+      Value: !Ref PaypalBillingPlansLink
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
+  PaypalBillingSubscriptionLinkParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/rcw-client-backend-${Environment}/PAYPAL_BILLING_SUBSCRIPTION_LINK"
+      Type: String
+      Value: !Ref PaypalBillingSubscriptionLink
+      Tags:
+        Infrastructure: RCW
+        Component: Application
+        Name: RCW-Param
+        Environment: !Ref Environment
+
   ### Cognito Parameters ###
   CognitoUserPoolIdParameter:
     Type: AWS::SSM::Parameter
