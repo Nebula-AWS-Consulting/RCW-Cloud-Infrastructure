@@ -52,6 +52,26 @@ Parameters:
     Type: String
     Description: Domain name for the application
 
+  PaypalAuthTokenLink: 
+    Type: String
+    Description: Link to Paypal documentation for authentication token
+
+  PaypalCheckoutOrderLink:
+    Type: String
+    Description: Link to Paypal documentation for secret
+
+  PaypalCatalogueProductLink:
+    Type: String
+    Description: Link to Paypal documentation for client id
+
+  PaypalBillingPlansLink:
+    Type: String
+    Description: Link to Paypal documentation for secret
+
+  PaypalBillingSubscriptionLink:
+    Type: String
+    Description: Link to Paypal documentation for client id
+
 Globals:
   Function:
     Runtime: python3.12
@@ -173,6 +193,11 @@ Resources:
         Variables:
           DOMAIN_NAME: !Ref DomainName
           ENVIRONMENT: !Ref Environment
+          PAYPAL_AUTH_TOKEN_LINK: !Ref PaypalAuthTokenLink
+          PAYPAL_CHECKOUT_ORDER_LINK: !Ref PaypalCheckoutOrderLink
+          PAYPAL_CATALOGUE_PRODUCT_LINK: !Ref PaypalCatalogueProductLink
+          PAYPAL_BILLING_PLANS_LINK: !Ref PaypalBillingPlansLink
+          PAYPAL_BILLING_SUBSCRIPTION_LINK: !Ref PaypalBillingSubscriptionLink
       Layers:
         - !Ref ClientPublicBackendLayer
       Events:
