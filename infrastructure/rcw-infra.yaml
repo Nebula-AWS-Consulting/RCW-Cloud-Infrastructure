@@ -32,9 +32,6 @@ Parameters:
   PayPalClientId:
     Type: String
     Description: Paypal client id.
-  SpreadSheetId:
-    Type: String
-    Description: Google spreadsheet id.
   Repository:
     Type: String
     Description: URL of the Git repository (e.g., https://github.com/user/repo)
@@ -107,7 +104,6 @@ Resources:
       TemplateURL: !Ref PaypalProcessorS3Uri
       Parameters:
         Environment: !Ref Environment
-        SpreadSheetId: !Ref SpreadSheetId
         TableName: !GetAtt ClientPublicDBStack.Outputs.SubscriptionsAndPaymentsTableName
 
   AdminAppStack:

@@ -1,4 +1,4 @@
-name: Dynamic CloudFormation Update
+name: Dynamic CloudFormation Update Dev
 
 on:
   pull_request:
@@ -97,7 +97,6 @@ jobs:
               EmailIdentitySenderEmail=emmanuelurias60@nebulaawsconsulting.com \
               PaypalSecret=${{ secrets.PAYPAL_SECRET }} \
               PayPalClientId=${{ secrets.PAYPAL_CLIENT_ID }} \
-              SpreadSheetId=1Jpicnmuuuy7aS__mGb-3sLgED9vxvELrvffrDtOHWjo \
               Repository=https://github.com/Nebula-AWS-Consulting/RCW-Infrastructure-Campaign \
               Branch=main \
               OauthToken=${{ secrets.OAUTH_TOKEN }} \
