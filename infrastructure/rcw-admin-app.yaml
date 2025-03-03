@@ -143,6 +143,11 @@ Resources:
           Properties:
             Path: /signin
             Method: POST
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /getuser
+            Method: POST
         UploadItem:
           Type: Api
           Properties:
