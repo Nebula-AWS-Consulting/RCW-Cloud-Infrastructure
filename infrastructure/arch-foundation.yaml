@@ -247,7 +247,7 @@ Resources:
     Properties:
       ConfigurationSetName: !Ref SESConfigurationSet
       EventDestination:
-        Name: RCW-EventDestination
+        Name: !Sub "RCW-EventDestination-${Environment}"
         Enabled: true
         MatchingEventTypes:
           - SEND

@@ -2,7 +2,7 @@
 
 # Variables
 WORKLOAD_FOLDER="./infrastructure/"
-S3_BUCKET="rcw-code-bucket/templates"
+S3_BUCKET="rcw-code-bucket-dev/templates"
 REGION="us-west-1"
 
 # Check if AWS CLI is installed
