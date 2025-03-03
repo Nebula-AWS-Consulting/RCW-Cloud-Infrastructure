@@ -8,10 +8,6 @@ Parameters:
     Default: Dev
     Description: Environment name for the VPC
 
-  SpreadSheetId:
-    Type: String
-    Description: Google SpreadSheet Id for the application
-
   TableName:
     Type: String
     Description: Table name for the application
