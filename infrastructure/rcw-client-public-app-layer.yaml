@@ -380,40 +380,40 @@ Resources:
         Name: RCW-PublicBackendAPI
         Environment: !Ref Environment
 
-  ### SES Identities ###
-  SESIdentityRecipent:
-    Type: AWS::SES::EmailIdentity
-    Properties:
-      EmailIdentity: !Ref EmailIdentityRecipientEmail
-  SESIdentitySender:
-    Type: AWS::SES::EmailIdentity
-    Properties:
-      EmailIdentity: !Ref EmailIdentitySenderEmail
+  # ### SES Identities ###
+  # SESIdentityRecipent:
+  #   Type: AWS::SES::EmailIdentity
+  #   Properties:
+  #     EmailIdentity: !Ref EmailIdentityRecipientEmail
+  # SESIdentitySender:
+  #   Type: AWS::SES::EmailIdentity
+  #   Properties:
+  #     EmailIdentity: !Ref EmailIdentitySenderEmail
 
-  ### SES Parameters ###
-  SESRecipientParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
-      Type: String
-      Value: !Ref SESIdentityRecipent
-      Tags:
-        Infrastructure: RCW
-        Component: Application
-        Name: RCW-Param
-        Environment: !Ref Environment
-        Description: A parameter made to customize the configurations of the email recipient at launc
-  SESIdentitySenderParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
-      Type: String
-      Value: !Ref SESIdentitySender
-      Tags:
-        Infrastructure: RCW
-        Component: Application
-        Name: RCW-Param
-        Environment: !Ref Environment
+  # ### SES Parameters ###
+  # SESRecipientParameter:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Name: !Sub "/rcw-client-backend-${Environment}/SESRecipientParameter"
+  #     Type: String
+  #     Value: !Ref SESIdentityRecipent
+  #     Tags:
+  #       Infrastructure: RCW
+  #       Component: Application
+  #       Name: RCW-Param
+  #       Environment: !Ref Environment
+  #       Description: A parameter made to customize the configurations of the email recipient at launc
+  # SESIdentitySenderParameter:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Name: !Sub "/rcw-client-backend-${Environment}/SESIdentitySenderParameter"
+  #     Type: String
+  #     Value: !Ref SESIdentitySender
+  #     Tags:
+  #       Infrastructure: RCW
+  #       Component: Application
+  #       Name: RCW-Param
+  #       Environment: !Ref Environment
 
   ### Paypal Parameters ###
   PaypalClientIdParameter:
